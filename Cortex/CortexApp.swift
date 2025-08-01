@@ -13,5 +13,7 @@ struct CortexApp: App {
         WindowGroup {
             ContentView()
         }
+        .windowStyle(.titleBar) // use .hiddenTitleBar for minimal
+        .defaultSize(width: 600, height: 400)
     }
 }

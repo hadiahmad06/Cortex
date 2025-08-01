@@ -10,12 +10,15 @@ import SwiftUI
 struct ContentView: View {
     var body: some View {
         VStack {
-            Image(systemName: "globe")
-                .imageScale(.large)
-                .foregroundStyle(.tint)
-            Text("Hello, world!")
+            Text("Welcome to Cortex")
+                .font(.largeTitle)
+                .padding()
+
+            Button("Summon Cortex") {
+                // show popup or start memory interaction
+            }
         }
-        .padding()
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
     }
 }
 
