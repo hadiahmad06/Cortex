@@ -8,6 +8,7 @@
 import SwiftUI
 
 struct ContentView: View {
+    @Environment(\.openWindow) private var openWindow
     var body: some View {
         VStack {
             Text("Welcome to Cortex")
@@ -15,10 +16,18 @@ struct ContentView: View {
                 .padding()
 
             Button("Summon Cortex") {
-                // show popup or start memory interaction
+                OverlayWindowController.shared.toggle()
             }
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
+        .onAppear {
+            openWindow(id: OverlayView.id)
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
+                if let window = NSApplication.shared.windows.first(where: { $0.identifier?.rawValue == OverlayView.id }) {
+                    window.orderOut(nil)
+                }
+            }
+        }
     }
 }
 

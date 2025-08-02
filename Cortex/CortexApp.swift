@@ -9,11 +9,16 @@ import SwiftUI
 
 @main
 struct CortexApp: App {
-    var body: some Scene {
-        WindowGroup {
-            ContentView()
-        }
-        .windowStyle(.titleBar) // use .hiddenTitleBar for minimal
-        .defaultSize(width: 600, height: 400)
+  init() {
+    registerGlobalHotkey()
+    print("registerGlobalHotkey() called")
+  }
+  var body: some Scene {
+    WindowGroup {
+      ContentView()
     }
+    Window("CortexOverlay", id: OverlayView.id) {
+      OverlayView()
+    }
+  }
 }
