@@ -23,75 +23,75 @@ struct OverlayView: View {
     ZStack {
       ZStack {
         VisualEffectBlur()
+          .overlay(Color.black.opacity(0.25))
 
-        ZStack {
-          if isHovered {
-            HStack {
-              Button(action: {
-                dismiss()
-              }) {
-                Image(systemName: "xmark")
-                  .foregroundColor(.white)
-                  .padding(8)
+        VStack {
+            if isHovered {
+              HStack {
+                Button(action: {
+                  dismiss()
+                }) {
+                  Image(systemName: "xmark")
+                    .foregroundColor(.white)
+    //                  .padding(8)
+                }
+                .buttonStyle(PlainButtonStyle())
+
+                Spacer()
+
+                Button(action: {
+                  inputText = ""
+                }) {
+                  Text("New Chat")
+                    .foregroundColor(.white)
+                    .padding(.horizontal, 10)
+                    .padding(.vertical, 6)
+                    .background(Color.white.opacity(0.1))
+                    .cornerRadius(6)
+                }
+                .buttonStyle(PlainButtonStyle())
               }
-              .buttonStyle(PlainButtonStyle())
-
-              Spacer()
-
-              Button(action: {
-                inputText = ""
-              }) {
-                Text("New Chat")
-                  .foregroundColor(.white)
-                  .padding(.horizontal, 10)
-                  .padding(.vertical, 6)
-                  .background(Color.white.opacity(0.1))
-                  .cornerRadius(6)
+              .padding()
+              .transition(.opacity)
+              .zIndex(1)
+            }
+          Spacer()
+          VStack(alignment: .trailing, spacing: 8) {
+            ZStack(alignment: .topLeading) {
+              if inputText.isEmpty {
+                Text("Mustard Blud")
+                  .font(.body)
+                  .foregroundColor(.white.opacity(0.4))
+                  .padding(.vertical, 12)
+                  .padding(.horizontal, 16)
               }
-              .buttonStyle(PlainButtonStyle())
+              TextEditor(text: $inputText)
+                .font(.body)
+                .padding(12)
+                .frame(minHeight: 20, maxHeight: 100)
+                .foregroundColor(.white)
+                .scrollContentBackground(.hidden)
+                .focused($isTextFieldFocused)
+                .disabled(!isScrollable)
+                .overlay(Color.white.opacity(0.05))
+                .cornerRadius(20)
+                .onTapGesture {
+                    isTextFieldFocused = true
+                }
+                .allowsHitTesting(true)
             }
-            .padding()
-            .transition(.opacity)
-            .zIndex(1)
           }
+          .padding()
         }
-        .background(Color.clear)
-        .onHover { hovering in
-          print("Hover state: \(hovering)")
-          isHovered = hovering
-        }
-
-        VStack(alignment: .leading, spacing: 8) {
-          ZStack(alignment: .topLeading) {
-            if inputText.isEmpty {
-              Text("Send a message...")
-                .foregroundColor(.white.opacity(0.4))
-                .padding(.vertical, 12)
-                .padding(.horizontal, 16)
-            }
-
-            TextEditor(text: $inputText)
-              .padding(12)
-              .frame(minHeight: 20, maxHeight: 100)
-              .background(Color(red: 52/255, green: 53/255, blue: 65/255))
-              .cornerRadius(10)
-              .foregroundColor(.white)
-              .scrollContentBackground(.hidden)
-              .focused($isTextFieldFocused)
-              .disabled(!isScrollable)
-              .allowsHitTesting(true)
-          }
-        }
-        .padding()
       }
-      .cornerRadius(12)
+      .cornerRadius(20)
       .onAppear {
         isTextFieldFocused = true
       }
       .animation(.easeInOut(duration: 0.2), value: isHovered)
     }
     .onHover { hovering in
-      print("Hover state: \(hovering)")
+//      print("Hover state: \(hovering)")
       isHovered = hovering
     }
   }
