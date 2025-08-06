@@ -1,0 +1,92 @@
+# ====================
+# Node.js / Backend
+# ====================
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+.env
+.env.local
+.env.*.local
+/dist/
+/build/
+/coverage/
+
+# ====================
+# macOS system files
+# ====================
+.DS_Store
+.AppleDouble
+.LSOverride
+
+# Thumbnails
+._*
+
+# Files that might appear on external volumes
+.Spotlight-V100
+.Trashes
+.VolumeIcon.icns
+
+# ====================
+# Xcode / iOS / macOS
+# ====================
+# Xcode build files
+build/
+DerivedData/
+
+# Xcode workspace settings
+*.xcworkspace
+xcuserdata/
+*.xcuserstate
+
+# Xcode scheme management
+*.xcscheme
+
+# Swift Package Manager
+.build/
+Packages/
+.swiftpm/xcode/package.xcworkspace/
+
+# CocoaPods
+Pods/
+Podfile.lock
+
+# Carthage
+Carthage/Build/
+
+# Fastlane
+fastlane/report.xml
+fastlane/Preview.html
+fastlane/screenshots/**/*.png
+fastlane/test_output/
+
+# Others
+*.moved-aside
+*.pbxuser
+*.mode1v3
+*.mode2v3
+*.perspectivev3
+
+# User-specific files
+*.swp
+*~.nib
+*.xcuserdatad
+*.hmap
+
+# Logs
+*.log
+
+# Temporary files
+*.tmp
+*.temp
+
+# Archives
+*.zip
+*.tar.gz
+*.tar.bz2
+*.rar
+
+# Backup files
+*.bak
+*.old
