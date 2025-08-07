@@ -35,7 +35,10 @@ router.post("/", async (req, res) => {
       }
     );
 
-    res.json({ result: response.data.choices[0].message.content });
+    res.json({ 
+      result: response.data.choices[0].message.content,
+      model: chosenModel
+    });
   } catch (err) {
     console.error(err?.response?.data || err.message);
     res.status(err?.response?.status || 500).json({
