@@ -3,11 +3,31 @@ const axios = require("axios");
 const router = express.Router();
 
 function chooseModel(prompt) {
+  const lower = prompt.toLowerCase();
   const len = prompt.length;
-  if (/code|bug|refactor|error/i.test(prompt)) return "openai/gpt-4";
-  if (len > 1000) return "anthropic/claude-3-sonnet";
-  if (/summary|summarize/i.test(prompt)) return "mistralai/mixtral-8x7b";
-  return "openai/gpt-3.5-turbo";
+
+  const scores = [
+    {
+      model: "openai/gpt-4",
+      score: /code|bug|refactor|error/.test(lower) ? 2 : 0
+    },
+    {
+      model: "anthropic/claude-3.7-sonnet",
+      score: len > 1000 ? 1 : 0
+    },
+    {
+      model: "mistralai/mistral-medium-3",
+      score: /summary|summarize/.test(lower) ? 1 : 0
+    },
+    {
+      model: "openai/gpt-3.5-turbo",
+      score: 0.5 // default fallback
+    }
+  ];
+
+  // Choose the model with the highest score
+  scores.sort((a, b) => b.score - a.score);
+  return scores[0].model;
 }
 
 router.post("/", async (req, res) => {
