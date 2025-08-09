@@ -9,7 +9,7 @@ function chooseModel(prompt) {
   const scores = [
     {
       model: "openai/gpt-4",
-      score: /code|bug|refactor|error/.test(lower) ? 2 : 0
+      score: /debug|code|bug|refactor|error/.test(lower) ? 2 : 0
     },
     {
       model: "anthropic/claude-3.7-sonnet",
@@ -20,7 +20,7 @@ function chooseModel(prompt) {
       score: /summary|summarize/.test(lower) ? 1 : 0
     },
     {
-      model: "openai/gpt-3.5-turbo",
+      model: "openrouter/auto",
       score: 0.5 // default fallback
     }
   ];
@@ -38,13 +38,14 @@ router.post("/", async (req, res) => {
   }
 
   const chosenModel = model || chooseModel(prompt);
+  const chatLog = [{ role: "user", content: prompt }];
 
   try {
     const response = await axios.post(
       "https://openrouter.ai/api/v1/chat/completions",
       {
         model: chosenModel,
-        messages: [{ role: "user", content: prompt }],
+        messages: chatLog,
       },
       {
         headers: {
@@ -55,9 +56,15 @@ router.post("/", async (req, res) => {
       }
     );
 
+    chatLog.push({ role: "assistant", content: response.data.choices[0].message.content });
+
+    const resolvedModel = response?.data?.model || chosenModel;
+
     res.json({ 
       result: response.data.choices[0].message.content,
-      model: chosenModel
+      requested_model: chosenModel,
+      resolved_model: resolvedModel,
+      chatLog
     });
   } catch (err) {
     console.error(err?.response?.data || err.message);
