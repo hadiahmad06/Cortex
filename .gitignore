@@ -76,6 +76,7 @@ fastlane/test_output/
 *.hmap
 
 # Logs
+test-logs/
 *.log
 
 # Temporary files
