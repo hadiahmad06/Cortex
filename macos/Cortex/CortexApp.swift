@@ -6,19 +6,25 @@
 //
 
 import SwiftUI
+import AppKit
+
+class AppDelegate: NSObject, NSApplicationDelegate {
+  func applicationDidFinishLaunching(_ notification: Notification) {
+    registerGlobalHotkey()
+  }
+
+  func applicationWillTerminate(_ notification: Notification) {
+    unregisterGlobalHotkey()
+  }
+}
 
 @main
 struct CortexApp: App {
-  init() {
-    registerGlobalHotkey()
-    print("registerGlobalHotkey() called")
-  }
+  @NSApplicationDelegateAdaptor(AppDelegate.self) var appDelegate
+
   var body: some Scene {
     WindowGroup {
       ContentView()
-    }
-    Window("CortexOverlay", id: OverlayView.id) {
-      OverlayView()
     }
   }
 }

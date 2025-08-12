@@ -11,31 +11,32 @@ import AppKit
 struct OverlayView: View {
   static let id = "CortexOverlay"
   @Environment(\.dismiss) private var dismiss
-  @FocusState private var isTextFieldFocused: Bool
+  @State private var isFirstResponder: Bool = false // might change later
   @State private var inputText: String = ""
   @State private var isHovered: Bool = false
+  @State private var measuredTextHeight: CGFloat = 36
 
-  private var isScrollable: Bool {
-    inputText.components(separatedBy: .newlines).count > 10
-  }
 
   var body: some View {
     ZStack {
       ZStack {
-        VisualEffectBlur()
+        RoundedRectangle(cornerRadius: 20, style: .continuous)
+          .fill(.ultraThinMaterial)
           .overlay(Color.black.opacity(0.25))
 
         VStack {
             if isHovered {
               HStack {
                 Button(action: {
-                  dismiss()
+                  OverlayWindowController.shared.toggle()
                 }) {
                   Image(systemName: "xmark")
                     .foregroundColor(.white)
-    //                  .padding(8)
                 }
                 .buttonStyle(PlainButtonStyle())
+                .padding(8)
+                .accessibilityLabel("Close")
+                .help("Close")
 
                 Spacer()
 
@@ -59,54 +60,42 @@ struct OverlayView: View {
           VStack(alignment: .trailing, spacing: 8) {
             ZStack(alignment: .topLeading) {
               if inputText.isEmpty {
-                Text("Mustard Blud")
-                  .font(.body)
+                Text("Type a prompt…")
+                  .font(.system(size: 12))
                   .foregroundColor(.white.opacity(0.4))
-                  .padding(.vertical, 12)
-                  .padding(.horizontal, 16)
+                    .padding(.vertical, 12)
+                    .padding(.horizontal, 16)
               }
-              TextEditor(text: $inputText)
-                .font(.body)
-                .padding(12)
-                .frame(minHeight: 20, maxHeight: 100)
-                .foregroundColor(.white)
-                .scrollContentBackground(.hidden)
-                .focused($isTextFieldFocused)
-                .disabled(!isScrollable)
-                .overlay(Color.white.opacity(0.05))
-                .cornerRadius(20)
+              AutoGrowingTextView(text: $inputText, isFirstResponder: $isFirstResponder, measuredHeight: $measuredTextHeight, maxHeight: 120)
+                .padding(.vertical, 12)
+                .padding(.horizontal, 16)
+                .background(Color.white.opacity(0.05))
                 .onTapGesture {
-                    isTextFieldFocused = true
+//                  NSApp.activate(ignoringOtherApps: true)
+//                  isFirstResponder = true
                 }
-                .allowsHitTesting(true)
             }
+            .frame(height: min(max(measuredTextHeight, 40), 120))
+            .cornerRadius(20)
           }
           .padding()
         }
       }
       .cornerRadius(20)
-      .onAppear {
-        isTextFieldFocused = true
-      }
+//      .onAppear {
+//        NSApp.activate(ignoringOtherApps: true)
+//        isFirstResponder = true
+//      }
       .animation(.easeInOut(duration: 0.2), value: isHovered)
     }
     .onHover { hovering in
 //      print("Hover state: \(hovering)")
       isHovered = hovering
     }
+    .onExitCommand {
+      OverlayWindowController.shared.toggle()
+    }
   }
-}
-
-struct VisualEffectBlur: NSViewRepresentable {
-  func makeNSView(context: Context) -> NSVisualEffectView {
-    let view = NSVisualEffectView()
-    view.material = .hudWindow
-    view.blendingMode = .behindWindow
-    view.state = .active
-    return view
-  }
-
-  func updateNSView(_ nsView: NSVisualEffectView, context: Context) {}
 }
 
 struct OverlayView_Previews: PreviewProvider {
