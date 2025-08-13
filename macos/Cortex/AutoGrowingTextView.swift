@@ -131,12 +131,44 @@ struct AutoGrowingTextView: NSViewRepresentable {
             // Count the number of visual lines by iterating through the glyphs
             var totalHeight: CGFloat = 40
             var index = glyphRange.location
-            
+            var lineNumber = 0
             while index < NSMaxRange(glyphRange) {
                 var lineRange = NSRange()
                 let lineRect = layout.lineFragmentRect(forGlyphAt: index, effectiveRange: &lineRange)
-                totalHeight += NSMaxRange(glyphRange) - 1 == index ? 0 : lineRect.height
+                let isLastLine = NSMaxRange(lineRange) == NSMaxRange(glyphRange)
+                if isLastLine {
+                    // Check if the last glyph corresponds to a newline character in the string
+                    let lastGlyphIndex = NSMaxRange(glyphRange) - 1
+                    if lastGlyphIndex < textView.string.utf16.count {
+                        let utf16View = textView.string.utf16
+                        let lastChar = utf16View[utf16View.index(utf16View.startIndex, offsetBy: lastGlyphIndex)]
+                        if lastChar == 10 { // newline character '\n'
+                            totalHeight += lineRect.height
+                        }
+                    }
+                }
+                if !isLastLine {
+                    totalHeight += lineRect.height
+                } else {
+                    // Last line: only add its height if it's not the first line and it wraps (more than one visual line fragment)
+                    if lineNumber > 0 {
+                        // Check if this last logical line is split into multiple visual lines
+                        // We'll check if the lineRange covers more than one fragment by counting the fragments for this range
+                        var fragmentCount = 0
+                        var fragIdx = lineRange.location
+                        while fragIdx < NSMaxRange(lineRange) {
+                            var fragRange = NSRange()
+                            _ = layout.lineFragmentRect(forGlyphAt: fragIdx, effectiveRange: &fragRange)
+                            fragmentCount += 1
+                            fragIdx = NSMaxRange(fragRange)
+                        }
+                        if fragmentCount > 1 {
+                            totalHeight += lineRect.height
+                        }
+                    }
+                }
                 index = NSMaxRange(lineRange)
+                lineNumber += 1
             }
 
             let inset = textView.textContainerInset
