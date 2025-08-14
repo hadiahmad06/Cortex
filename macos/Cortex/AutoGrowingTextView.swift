@@ -129,7 +129,7 @@ struct AutoGrowingTextView: NSViewRepresentable {
             layout.ensureLayout(forGlyphRange: glyphRange)
 
             // Count the number of visual lines by iterating through the glyphs
-            var totalHeight: CGFloat = 40
+            var totalHeight: CGFloat = 30
             var index = glyphRange.location
             var lineNumber = 0
             while index < NSMaxRange(glyphRange) {

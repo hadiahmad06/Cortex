@@ -11,10 +11,8 @@ import AppKit
 struct OverlayView: View {
   static let id = "CortexOverlay"
   @Environment(\.dismiss) private var dismiss
-  @State private var isFirstResponder: Bool = false // might change later
-  @State private var inputText: String = ""
   @State private var isHovered: Bool = false
-  @State private var measuredTextHeight: CGFloat = 36
+  // if ^ is changed, must change `totalHeight` in AutoGrowingTextView.swift
 
 
   var body: some View {
@@ -25,78 +23,38 @@ struct OverlayView: View {
           .overlay(Color.black.opacity(0.25))
 
         VStack {
-            if isHovered {
-              HStack {
-                Button(action: {
-                  OverlayWindowController.shared.toggle()
-                }) {
-                  Image(systemName: "xmark")
-                    .foregroundColor(.white)
-                }
-                .buttonStyle(PlainButtonStyle())
-                .padding(8)
-                .accessibilityLabel("Close")
-                .help("Close")
-
-                Spacer()
-
-                Button(action: {
-                  inputText = ""
-                }) {
-                  Text("New Chat")
-                    .foregroundColor(.white)
-                    .padding(.horizontal, 10)
-                    .padding(.vertical, 6)
-                    .background(Color.white.opacity(0.1))
-                    .cornerRadius(6)
-                }
-                .buttonStyle(PlainButtonStyle())
+          if isHovered {
+            HStack {
+              Button(action: {
+                OverlayWindowController.shared.toggle()
+              }) {
+                Image(systemName: "xmark")
+                  .foregroundColor(.white)
               }
-              .padding()
-              .transition(.opacity)
-              .zIndex(1)
-            }
-          Spacer()
-          VStack(alignment: .trailing, spacing: 8) {
-            ZStack(alignment: .topLeading) {
-              if inputText.isEmpty {
-                Text("Type a prompt…")
-                  .font(.system(size: 12))
-                  .foregroundColor(.white.opacity(0.4))
-              }
-              AutoGrowingTextView(text: $inputText, isFirstResponder: $isFirstResponder, measuredHeight: $measuredTextHeight, maxHeight: 120)
-                .onTapGesture {
-//                  NSApp.activate(ignoringOtherApps: true)
-//                  isFirstResponder = true
-                }
-            }
-            .frame(height: min(max(measuredTextHeight, 40), 120))
-            .padding(.top, 12)
-            .padding(.horizontal, 16)
+              .buttonStyle(PlainButtonStyle())
+              .padding(8)
+              .accessibilityLabel("Close")
+              .help("Close")
 
-            HStack(alignment: .center){
-              HStack(spacing: 8) {
-                PromptButton(systemName: "plus", isToggled: .constant(nil))
-                  // attach documents
-                PromptButton(systemName: "globe", isToggled: .constant(nil))
-                  // web search
-                PromptButton(systemName: "puzzlepiece.extension", isToggled: .constant(nil))
-                  // integrate with other apps
-              }
               Spacer()
-              HStack(spacing: 8) {
-                PromptButton(systemName: "mic.fill", isToggled: .constant(nil))
-                  // microphone action
-                PromptButton(systemName: "square.and.arrow.up", foregroundColor: .primary, isToggled: .constant(nil))
-                  // upload action
+
+              Button(action: {
+              }) {
+                Text("New Chat")
+                  .foregroundColor(.white)
+                  .padding(.horizontal, 10)
+                  .padding(.vertical, 6)
+                  .background(Color.white.opacity(0.1))
+                  .cornerRadius(6)
               }
+              .buttonStyle(PlainButtonStyle())
             }
-            .padding(.bottom, 8)
-            .padding(.horizontal, 12)
+            .padding()
+            .transition(.opacity)
+            .zIndex(1)
           }
-          .background(Color.white.opacity(0.05))
-          .cornerRadius(20)
-          .padding()
+          Spacer()
+          PromptBox()
         }
       }
       .cornerRadius(20)
@@ -120,6 +78,7 @@ struct OverlayView_Previews: PreviewProvider {
   static var previews: some View {
     OverlayView()
       .previewLayout(.sizeThatFits)
+      .environmentObject(PromptContext())
 //      .padding()
   }
 }

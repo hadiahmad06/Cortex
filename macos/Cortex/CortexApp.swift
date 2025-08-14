@@ -21,10 +21,12 @@ class AppDelegate: NSObject, NSApplicationDelegate {
 @main
 struct CortexApp: App {
   @NSApplicationDelegateAdaptor(AppDelegate.self) var appDelegate
-
+  @StateObject private var promptContext = PromptContext()
+  
   var body: some Scene {
     WindowGroup {
       ContentView()
+        .environmentObject(promptContext)
     }
   }
 }
