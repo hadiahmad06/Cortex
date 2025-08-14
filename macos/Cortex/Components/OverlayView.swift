@@ -27,6 +27,7 @@ struct OverlayView: View {
             HStack {
               IconButton(
                 systemName: "xmark",
+                action: OverlayWindowController.shared.toggle,
                 isToggled: .constant(false),
                 tooltip: "Close (Esc)",
                 help: "Close the overlay",
@@ -37,7 +38,6 @@ struct OverlayView: View {
 
               IconButton(
                 systemName: "rectangle.on.rectangle",
-                action: OverlayWindowController.shared.toggle,
                 isToggled: .constant(false),
                 tooltip: "Open in main window (⌘O)",
                 help: "Open chat in main window",
@@ -60,7 +60,7 @@ struct OverlayView: View {
             .zIndex(1)
           }
           Spacer()
-          PromptBox()
+          PromptBox(isOverlay: true)
         }
       }
       .cornerRadius(24)

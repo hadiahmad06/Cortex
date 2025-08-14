@@ -9,33 +9,44 @@ import SwiftUI
 
 struct PromptBox: View {
   @EnvironmentObject var ctx: AppContexts
+  var isOverlay: Bool
   @State private var isHovered: Bool = false
-  @State private var measuredTextHeight: CGFloat = 30
   @State private var isFirstResponder: Bool = false // might change later
+  @State private var measuredTextHeight: CGFloat = 30
   
   var body: some View {
+    
+    let inputText = isOverlay ? $ctx.promptContext.overlayInputText : $ctx.promptContext.windowInputText
+    let isInputEmpty = inputText.wrappedValue.isEmpty
+    
     VStack(alignment: .trailing, spacing: 8) {
       ZStack(alignment: .topLeading) {
-        if ctx.promptContext.inputText.isEmpty {
+        if isInputEmpty {
           Text("Type a prompt…")
             .font(.system(size: 12))
             .foregroundColor(.white.opacity(0.4))
         }
         AutoGrowingTextView(
-          text: $ctx.promptContext.inputText,
+          text: inputText,
           isFirstResponder: $isFirstResponder,
           measuredHeight: $measuredTextHeight,
+          onEnterPressed: {ctx.promptContext.sendCurrentPrompt(forOverlay: isOverlay)},
           maxHeight: 120
         )
-          .onTapGesture {
-//            NSApp.activate(ignoringOtherApps: true)
-//            isFirstResponder = true
+        .onTapGesture {
+          //            NSApp.activate(ignoringOtherApps: true)
+          //            isFirstResponder = true
         }
       }
       .frame(height: min(measuredTextHeight, 120))
       .padding(.top, 12)
       .padding(.horizontal, 16)
       
+//      ParentTextView(
+//        inputTextBinding: inputTextBinding,
+//        isFirstResponder: $isFirstResponder,
+//        onEnterPressed: {ctx.promptContext.sendCurrentPrompt(forOverlay: isOverlay)}
+//      )
       HStack(alignment: .center, spacing: 3){
         IconButton(
           systemName: "plus",
@@ -66,18 +77,18 @@ struct PromptBox: View {
           // Send action
         }) {
           Image(systemName: "arrow.up")
-            .foregroundColor(ctx.promptContext.inputText.isEmpty ? .black : .black.opacity(0.8))
+            .foregroundColor(isInputEmpty ? .black : .black.opacity(0.8))
             .font(.system(size: 18, weight: .medium))
             .frame(width: 36, height: 36)
             .background(
               Circle()
-                .fill(ctx.promptContext.inputText.isEmpty ? Color.gray.opacity(0.75) : Color.white)
+                .fill(isInputEmpty ? Color.gray.opacity(0.75) : Color.white)
             )
             .help("Submit prompt")
             .accessibilityLabel("Submit the prompt")
         }
         .padding(.leading, 8)
-        .disabled(ctx.promptContext.inputText.isEmpty)
+        .disabled(isInputEmpty)
         .buttonStyle(PlainButtonStyle())
       }
       .padding(.bottom, 8)

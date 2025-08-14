@@ -31,7 +31,7 @@ struct ContentView: View {
     
       Spacer()
       
-      PromptBox()
+      PromptBox(isOverlay: false)
       
     }
     .frame(maxWidth: .infinity, maxHeight: .infinity)

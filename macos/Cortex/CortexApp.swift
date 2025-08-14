@@ -20,11 +20,6 @@ class AppDelegate: NSObject, NSApplicationDelegate {
 
 class AppContexts: ObservableObject {
     @Published var promptContext: PromptContext = PromptContext()
-
-    var inputText: String {
-        get { promptContext.inputText }
-        set { promptContext.inputText = newValue }
-    }
 }
 
 @main

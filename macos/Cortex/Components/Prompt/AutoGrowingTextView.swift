@@ -5,6 +5,7 @@ struct AutoGrowingTextView: NSViewRepresentable {
     @Binding var text: String
     @Binding var isFirstResponder: Bool
     @Binding var measuredHeight: CGFloat
+    var onEnterPressed: (() -> Void)
 
     let maxHeight: CGFloat
     let font: NSFont = .systemFont(ofSize: 12)
@@ -195,10 +196,20 @@ struct AutoGrowingTextView: NSViewRepresentable {
 
 // Custom NSTextView to reliably focus and activate window on click inside non-activating panels
 final class FocusableTextView: NSTextView {
-    override func mouseDown(with event: NSEvent) {
-//        NSApp.activate(ignoringOtherApps: true)
-//        window?.makeKeyAndOrderFront(nil)
-//        window?.makeFirstResponder(self)
-//        super.mouseDown(with: event)
+    var onEnterPressed: (() -> Void)?
+
+    override func keyDown(with event: NSEvent) {
+        // keyCode 36 = Return/Enter (main keyboard), keyCode 76 = Enter (numeric keypad)
+        if (event.keyCode == 36 || event.keyCode == 76) {
+            if event.modifierFlags.contains(.shift) {
+                // Insert newline as usual if Shift is pressed
+                super.keyDown(with: event)
+            } else {
+                // Trigger the enter pressed action
+                onEnterPressed?()
+            }
+        } else {
+            super.keyDown(with: event)
+        }
     }
 }
