@@ -63,21 +63,39 @@ struct OverlayView: View {
                 Text("Type a prompt…")
                   .font(.system(size: 12))
                   .foregroundColor(.white.opacity(0.4))
-                    .padding(.vertical, 12)
-                    .padding(.horizontal, 16)
               }
               AutoGrowingTextView(text: $inputText, isFirstResponder: $isFirstResponder, measuredHeight: $measuredTextHeight, maxHeight: 120)
-                .padding(.vertical, 12)
-                .padding(.horizontal, 16)
-                .background(Color.white.opacity(0.05))
                 .onTapGesture {
 //                  NSApp.activate(ignoringOtherApps: true)
 //                  isFirstResponder = true
                 }
             }
             .frame(height: min(max(measuredTextHeight, 40), 120))
-            .cornerRadius(20)
+            .padding(.top, 12)
+            .padding(.horizontal, 16)
+
+            HStack(alignment: .center){
+              HStack(spacing: 8) {
+                PromptButton(systemName: "plus", isToggled: .constant(nil))
+                  // attach documents
+                PromptButton(systemName: "globe", isToggled: .constant(nil))
+                  // web search
+                PromptButton(systemName: "puzzlepiece.extension", isToggled: .constant(nil))
+                  // integrate with other apps
+              }
+              Spacer()
+              HStack(spacing: 8) {
+                PromptButton(systemName: "mic.fill", isToggled: .constant(nil))
+                  // microphone action
+                PromptButton(systemName: "square.and.arrow.up", foregroundColor: .primary, isToggled: .constant(nil))
+                  // upload action
+              }
+            }
+            .padding(.bottom, 8)
+            .padding(.horizontal, 12)
           }
+          .background(Color.white.opacity(0.05))
+          .cornerRadius(20)
           .padding()
         }
       }
