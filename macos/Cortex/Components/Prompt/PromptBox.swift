@@ -8,7 +8,7 @@
 import SwiftUI
 
 struct PromptBox: View {
-  @EnvironmentObject var context: PromptContext
+  @EnvironmentObject var ctx: AppContexts
   @State private var isHovered: Bool = false
   @State private var measuredTextHeight: CGFloat = 30
   @State private var isFirstResponder: Bool = false // might change later
@@ -16,13 +16,13 @@ struct PromptBox: View {
   var body: some View {
     VStack(alignment: .trailing, spacing: 8) {
       ZStack(alignment: .topLeading) {
-        if context.inputText.isEmpty {
+        if ctx.promptContext.inputText.isEmpty {
           Text("Type a prompt…")
             .font(.system(size: 12))
             .foregroundColor(.white.opacity(0.4))
         }
         AutoGrowingTextView(
-          text: $context.inputText,
+          text: $ctx.promptContext.inputText,
           isFirstResponder: $isFirstResponder,
           measuredHeight: $measuredTextHeight,
           maxHeight: 120

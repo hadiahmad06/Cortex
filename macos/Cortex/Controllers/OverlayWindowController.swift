@@ -12,6 +12,8 @@ class OverlayWindowController {
   static let shared = OverlayWindowController()
   private var panel: NSPanel?
 
+  var contexts: AppContexts?
+  
   func toggle() {
     if panel == nil {
       createPanel()
@@ -53,7 +55,10 @@ class OverlayWindowController {
     panel.isMovableByWindowBackground = true
     panel.becomesKeyOnlyIfNeeded = true
 
-    let hosting = NSHostingView(rootView: OverlayView())
+    let hosting = NSHostingView(
+        rootView: OverlayView()
+            .environmentObject(contexts!)
+    )
     panel.contentView = hosting
 
     self.panel = panel

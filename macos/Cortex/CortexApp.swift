@@ -18,15 +18,28 @@ class AppDelegate: NSObject, NSApplicationDelegate {
   }
 }
 
+class AppContexts: ObservableObject {
+    @Published var promptContext: PromptContext = PromptContext()
+
+    var inputText: String {
+        get { promptContext.inputText }
+        set { promptContext.inputText = newValue }
+    }
+}
+
 @main
 struct CortexApp: App {
   @NSApplicationDelegateAdaptor(AppDelegate.self) var appDelegate
-  @StateObject private var promptContext = PromptContext()
+  private var appContexts = AppContexts()
+  
+  init() {
+    OverlayWindowController.shared.contexts = appContexts
+  }
   
   var body: some Scene {
     WindowGroup {
       ContentView()
-        .environmentObject(promptContext)
+        .environmentObject(appContexts)
     }
   }
 }
