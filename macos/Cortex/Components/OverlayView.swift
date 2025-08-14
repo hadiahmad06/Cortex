@@ -25,31 +25,37 @@ struct OverlayView: View {
         VStack {
           if isHovered {
             HStack {
-              Button(action: {
-                OverlayWindowController.shared.toggle()
-              }) {
-                Image(systemName: "xmark")
-                  .foregroundColor(.white)
-              }
-              .buttonStyle(PlainButtonStyle())
-              .padding(8)
-              .accessibilityLabel("Close")
-              .help("Close")
-
+              IconButton(
+                systemName: "xmark",
+                isToggled: .constant(false),
+                tooltip: "Close (Esc)",
+                help: "Close the overlay",
+                size: 24,
+                fontSize: 14
+              )
               Spacer()
 
-              Button(action: {
-              }) {
-                Text("New Chat")
-                  .foregroundColor(.white)
-                  .padding(.horizontal, 10)
-                  .padding(.vertical, 6)
-                  .background(Color.white.opacity(0.1))
-                  .cornerRadius(6)
-              }
-              .buttonStyle(PlainButtonStyle())
+              IconButton(
+                systemName: "rectangle.on.rectangle",
+                action: OverlayWindowController.shared.toggle,
+                isToggled: .constant(false),
+                tooltip: "Open in main window (⌘O)",
+                help: "Open chat in main window",
+                size: 24,
+                fontSize: 14
+              )
+              IconButton(
+                systemName: "square.and.pencil",
+                isToggled: .constant(false),
+                tooltip: "New Chat (⌘N)",
+                help: "Open chat in main window",
+                size: 24,
+                fontSize: 14
+              )
+              
             }
-            .padding()
+            .padding(.horizontal, 8)
+            .padding(.vertical, 8)
             .transition(.opacity)
             .zIndex(1)
           }
@@ -57,7 +63,7 @@ struct OverlayView: View {
           PromptBox()
         }
       }
-      .cornerRadius(20)
+      .cornerRadius(24)
 //      .onAppear {
 //        NSApp.activate(ignoringOtherApps: true)
 //        isFirstResponder = true
@@ -78,7 +84,7 @@ struct OverlayView_Previews: PreviewProvider {
   static var previews: some View {
     OverlayView()
       .previewLayout(.sizeThatFits)
-      .environmentObject(PromptContext())
+      .environmentObject(AppContexts())
 //      .padding()
   }
 }

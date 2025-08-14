@@ -1,5 +1,5 @@
 //
-//  PromptButton.swift
+//  IconButton.swift
 //  Cortex
 //
 //  Created by Hadi Ahmad on 8/13/25.
@@ -8,12 +8,17 @@
 
 import SwiftUI
 
-struct PromptButton: View {
+struct IconButton: View {
     let systemName: String
-    var foregroundColor: Color = .white
+    var foregroundColor: Color = .white.opacity(0.65)
     var action: () -> Void = {}
     @Binding var isToggled: Bool?  // optional binding
+    var tooltip: String?
+    var help: String?
+    var size: CGFloat = 32
+    var fontSize: CGFloat = 18
     
+  
     @State private var isHovered = false
     
     var body: some View {
@@ -24,16 +29,18 @@ struct PromptButton: View {
             action()
         }) {
             Image(systemName: systemName)
-                .font(.system(size: 18))
+                .font(.system(size: fontSize))
                 .foregroundColor(foregroundColor)
-                .frame(width: 32, height: 32)
+                .frame(width: size, height: size)
                 .background(
                     (isToggled ?? false) ? Color.blue.opacity(0.5) :
-                    (isHovered ? Color.white.opacity(0.05) : Color.clear)
+                    (isHovered ? Color.white.opacity(0.075) : Color.clear)
                 )
                 .cornerRadius(6)
         }
         .buttonStyle(PlainButtonStyle())
+        .help(tooltip ?? systemName)
+        .accessibilityLabel(help ?? tooltip ?? systemName)
         .onHover { hovering in
             isHovered = hovering
         }

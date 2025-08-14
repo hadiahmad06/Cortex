@@ -36,28 +36,55 @@ struct PromptBox: View {
       .padding(.top, 12)
       .padding(.horizontal, 16)
       
-      HStack(alignment: .center){
-        HStack(spacing: 8) {
-          PromptButton(systemName: "plus", isToggled: .constant(nil))
-          // attach documents
-          PromptButton(systemName: "globe", isToggled: .constant(nil))
-          // web search
-          PromptButton(systemName: "puzzlepiece.extension", isToggled: .constant(nil))
-          // integrate with other apps
-        }
+      HStack(alignment: .center, spacing: 3){
+        IconButton(
+          systemName: "plus",
+          isToggled: .constant(nil),
+          tooltip: "Attach Content",
+          help: "Attach Content to your prompt"
+        )
+        IconButton(
+          systemName: "globe",
+          isToggled: .constant(nil),
+          tooltip: "Search the Web",
+          help: "Enable web searching in your prompt"
+        )
+        IconButton(
+          systemName: "puzzlepiece.extension",
+          isToggled: .constant(nil),
+          tooltip: "Work with Apps",
+          help: "Connect with other apps and tools"
+        )
         Spacer()
-        HStack(spacing: 8) {
-          PromptButton(systemName: "mic.fill", isToggled: .constant(nil))
-          // microphone action
-          PromptButton(systemName: "square.and.arrow.up", foregroundColor: .primary, isToggled: .constant(nil))
-          // upload action
+        IconButton(
+          systemName: "mic.fill",
+          isToggled: .constant(nil),
+          tooltip: "Transcribe voice",
+          help: "Use voice to write your prompt"
+        )
+        Button(action: {
+          // Send action
+        }) {
+          Image(systemName: "arrow.up")
+            .foregroundColor(ctx.promptContext.inputText.isEmpty ? .black : .black.opacity(0.8))
+            .font(.system(size: 18, weight: .medium))
+            .frame(width: 36, height: 36)
+            .background(
+              Circle()
+                .fill(ctx.promptContext.inputText.isEmpty ? Color.gray.opacity(0.75) : Color.white)
+            )
+            .help("Submit prompt")
+            .accessibilityLabel("Submit the prompt")
         }
+        .padding(.leading, 8)
+        .disabled(ctx.promptContext.inputText.isEmpty)
+        .buttonStyle(PlainButtonStyle())
       }
       .padding(.bottom, 8)
       .padding(.horizontal, 12)
     }
     .background(Color.white.opacity(0.05))
-    .cornerRadius(20)
+    .cornerRadius(24)
     .padding()
   }
 }
