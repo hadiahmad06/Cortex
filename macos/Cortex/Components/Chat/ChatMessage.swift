@@ -28,31 +28,10 @@ struct ChatMessage: View {
             .padding(.vertical, 6)
             .foregroundColor(.white.opacity(0.75))
             .frame(maxWidth: .infinity, alignment: .leading)
-          Spacer(minLength: 0)
+          Spacer()
         }
       }
-      .overlay(
-        Button(action: {
-          isPinned.toggle()
-        }) {
-          Image(systemName: isPinned ? "pin.fill" : "pin")
-            .font(.system(size: 12))
-            .foregroundColor(.white.opacity(0.75))
-            .padding(6)
-            .background(Color.black.opacity(0.5))
-            .clipShape(Circle())
-        }
-        .opacity(isHovered ? 1 : 0)
-        .allowsHitTesting(isHovered)
-        , alignment: msg.isUser ? .topTrailing : .topLeading
-      )
-      MessageFooter(msg: msg)
-        .padding(.top, 4)
-        .opacity(isHovered ? 1 : 0)
-        .animation(.easeInOut(duration: 0.2), value: isHovered)
-        .allowsHitTesting(isHovered)
     }
-    .padding(.horizontal, 20)
     .onHover { hovering in
       isHovered = hovering
     }

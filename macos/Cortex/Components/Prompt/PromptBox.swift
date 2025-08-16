@@ -50,26 +50,26 @@ struct PromptBox: View {
       HStack(alignment: .center, spacing: 3){
         IconButton(
           systemName: "plus",
-          isToggled: .constant(nil),
+          isToggled: .constant(false),
           tooltip: "Attach Content",
           help: "Attach Content to your prompt"
         )
         IconButton(
           systemName: "globe",
-          isToggled: .constant(nil),
+          isToggled: .constant(false),
           tooltip: "Search the Web",
           help: "Enable web searching in your prompt"
         )
         IconButton(
           systemName: "puzzlepiece.extension",
-          isToggled: .constant(nil),
+          isToggled: .constant(false),
           tooltip: "Work with Apps",
           help: "Connect with other apps and tools"
         )
         Spacer()
         IconButton(
           systemName: "mic.fill",
-          isToggled: .constant(nil),
+          isToggled: .constant(false),
           tooltip: "Transcribe voice",
           help: "Use voice to write your prompt"
         )

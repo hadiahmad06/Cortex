@@ -10,18 +10,18 @@ import SwiftUI
 struct MessageFooter: View {
   var msg: Message
   
-  @State private var isCopied: Bool? = false
-  @State private var isReadAloud: Bool? = false
-  @State private var isRegenerated: Bool? = false
-  @State private var isPinned: Bool? = false
-  @State private var isShared: Bool? = false
-  @State private var isEdited: Bool? = false
+  @State private var isCopied: Bool = false
+  @State private var isReadAloud: Bool = false
+  @State private var isRegenerated: Bool = false
+  @State private var isPinned: Bool = false
+  @State private var isShared: Bool = false
+  @State private var isEdited: Bool = false
   
   var body: some View {
-    HStack {
-      if msg.isUser {
-        Spacer()
-      }
+    HStack(spacing: 0) {
+//      if msg.isUser {
+//        Spacer()
+//      }
       
       // Use a simple array of button purpose strings
       let buttonPurposes: [String] = msg.isUser
@@ -37,7 +37,7 @@ struct MessageFooter: View {
             isToggled: $isCopied,
             tooltip: "",
             help: "",
-            size: 20,
+            size: 28,
             fontSize: 12
           )
         case "edit":
@@ -47,7 +47,7 @@ struct MessageFooter: View {
             isToggled: $isEdited,
             tooltip: "",
             help: "",
-            size: 20,
+            size: 28,
             fontSize: 14
           )
         case "readAloud":
@@ -57,7 +57,7 @@ struct MessageFooter: View {
             isToggled: $isReadAloud,
             tooltip: "",
             help: "",
-            size: 20,
+            size: 28,
             fontSize: 12
           )
         case "repeat":
@@ -67,7 +67,7 @@ struct MessageFooter: View {
             isToggled: $isRegenerated,
             tooltip: "",
             help: "",
-            size: 20,
+            size: 28,
             fontSize: 12
           )
         case "share":
@@ -77,7 +77,7 @@ struct MessageFooter: View {
             isToggled: $isShared,
             tooltip: "",
             help: "",
-            size: 20,
+            size: 28,
             fontSize: 12
           )
         default:
@@ -86,9 +86,9 @@ struct MessageFooter: View {
         }
       }
       
-      if !msg.isUser {
-        Spacer()
-      }
+//      if !msg.isUser {
+//        Spacer()
+//      }
     }
   }
 }
