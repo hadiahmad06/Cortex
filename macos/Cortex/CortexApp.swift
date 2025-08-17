@@ -19,7 +19,8 @@ class AppDelegate: NSObject, NSApplicationDelegate {
 }
 
 class AppContexts: ObservableObject {
-    @Published var promptContext: PromptContext = PromptContext()
+  @Published var promptContext: PromptContext = PromptContext()
+  @Published var chatContext: ChatManager = ChatManager()
 }
 
 @main

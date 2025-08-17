@@ -16,52 +16,33 @@ struct Message: Identifiable {
 }
 
 struct ChatView: View {
+  @EnvironmentObject var ctx: AppContexts
+  var isOverlay: Bool
+  
+  // Hover tracking
   @State private var hoveredMessageID: UUID?
   
-  let messages: [Message] = [
-    Message(
-      id: UUID(),
-      text: "Hello, how are you?",
-      isUser: true,
-      isPinned: false,
-      timestamp: Date().addingTimeInterval(-300)
-    ),
-    Message(
-      id: UUID(),
-      text: "I'm good, thanks! How can I help you today?",
-      isUser: false,
-      isPinned: false,
-      timestamp: Date().addingTimeInterval(-290)
-    ),
-    Message(
-      id: UUID(),
-      text: "Can you tell me about SwiftUI?",
-      isUser: true,
-      isPinned: false,
-      timestamp: Date().addingTimeInterval(-280)
-    ),
-    Message(
-      id: UUID(),
-      text: "Sure! SwiftUI is a framework for building user interfaces across all Apple platforms. Do you want any other information? Please let me know blah blah blah blah blah blah blah blah blah blah blah",
-      isUser: false,
-      isPinned: false,
-      timestamp: Date().addingTimeInterval(-270)
-    ),
-    Message(
-      id: UUID(),
-      text: "That's awesome. Thank you!",
-      isUser: true,
-      isPinned: false,
-      timestamp: Date().addingTimeInterval(-260)
-    ),
-    Message(
-      id: UUID(),
-      text: "You're welcome! Let me know if you have more questions.",
-      isUser: false,
-      isPinned: false,
-      timestamp: Date().addingTimeInterval(-250)
-    )
-  ]
+  var id: UUID? {
+    return session.id
+  }
+  
+  var session: ChatSessionContext {
+    let manager = ctx.chatContext
+    if isOverlay {
+      return manager.session(for: manager.overlayChatID)
+    } else {
+      return manager.session(for: manager.windowChatID)
+    }
+  }
+  
+  var messages: [Message] {
+    session.messages
+  }
+  
+  private func loadSession() {
+    session.messages = ChatAPI.fetchMessages(for: id)
+    print(session.messages)
+  }
   
   var body: some View {
     ScrollView {
@@ -106,10 +87,15 @@ struct ChatView: View {
                   hoveredMessageID = hover ? msg.id : nil
                 }
             }
+//            IncomingMessage(chatSessionContext: session)
           }
         }
       }
       .padding(20)
+      .id(session)
+      .onAppear {
+        loadSession()
+      }
     }
   }
 }
@@ -162,5 +148,6 @@ struct MessageFooterDupe: View {
 }
 
 #Preview {
-  ChatView()
+  ChatView(isOverlay: true)
+    .environmentObject(AppContexts())
 }

@@ -9,8 +9,6 @@ import SwiftUI
 
 struct ChatMessage: View {
   var msg: Message
-  @State private var isHovered: Bool = false
-  @State var isPinned: Bool = false
   
   var body: some View {
     VStack(alignment: msg.isUser ? .trailing : .leading, spacing: 0) {
@@ -31,9 +29,6 @@ struct ChatMessage: View {
           Spacer()
         }
       }
-    }
-    .onHover { hovering in
-      isHovered = hovering
     }
   }
 }

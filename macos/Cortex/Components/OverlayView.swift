@@ -60,6 +60,7 @@ struct OverlayView: View {
             .zIndex(1)
           }
           Spacer()
+          ChatView(isOverlay: true)
           PromptBox(isOverlay: true)
         }
       }
