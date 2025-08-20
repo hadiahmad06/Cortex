@@ -22,79 +22,88 @@ struct ChatView: View {
   // Hover tracking
   @State private var hoveredMessageID: UUID?
   
-  var id: UUID? {
-    return session.id
-  }
-  
-  var session: ChatSessionContext {
-    let manager = ctx.chatContext
-    if isOverlay {
-      return manager.session(for: manager.overlayChatID)
-    } else {
-      return manager.session(for: manager.windowChatID)
-    }
-  }
-  
-  var messages: [Message] {
-    session.messages
+  @ObservedObject var session: ChatSessionContext
+
+  init(isOverlay: Bool) {
+    self.isOverlay = isOverlay
+    let manager = AppContexts.ctx.chatContext
+    let resolvedSession = isOverlay
+      ? manager.session(for: manager.overlayChatID)
+      : manager.session(for: manager.windowChatID)
+    _session = ObservedObject(initialValue: resolvedSession)
   }
   
   private func loadSession() {
-    session.messages = ChatAPI.fetchMessages(for: id)
+    session.messages = ChatAPI.fetchMessages(for: session.id)
     print(session.messages)
   }
   
   var body: some View {
-    ScrollView {
-      LazyVStack(spacing: 0) {
-        ForEach(Array(messages.enumerated()), id: \.element.id) { index, msg in
-          VStack(spacing: 0) {
-            if index == 0 {
-              IconButtonDupe(msg: msg, hoveredMessageID: $hoveredMessageID)
-              ChatMessage(msg: msg)
-                .onHover { hover in
-                  hoveredMessageID = hover ? msg.id : nil
+    if (!isOverlay && session.messages.isEmpty) {
+      VStack(spacing: 8) {
+        Text("Start chatting now!")
+          .font(.title2)
+          .fontWeight(.semibold)
+          .frame(maxWidth: .infinity, alignment: .center)
+          .multilineTextAlignment(.center)
+        Text("Pick any model you like — or let us choose one for you.")
+          .font(.body)
+          .foregroundColor(.secondary)
+          .multilineTextAlignment(.center)
+      }
+      .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .center)
+    } else {
+      ScrollView {
+        LazyVStack(spacing: 0) {
+          ForEach(Array(session.messages.enumerated()), id: \.element.id) { index, msg in
+            VStack(spacing: 0) {
+              if index == 0 {
+                IconButtonDupe(msg: msg, hoveredMessageID: $hoveredMessageID)
+                ChatMessage(msg: msg)
+                  .onHover { hover in
+                    hoveredMessageID = hover ? msg.id : nil
+                  }
+              } else if index == session.messages.count - 1 {
+                let prevMsg = session.messages[index - 1]
+                HStack(spacing: 0) {
+                  if msg.isUser {
+                    MessageFooterDupe(msg: prevMsg, hoveredMessageID: $hoveredMessageID)
+                    IconButtonDupe(msg: msg, hoveredMessageID: $hoveredMessageID)
+                  } else {
+                    IconButtonDupe(msg: msg, hoveredMessageID: $hoveredMessageID)
+                    MessageFooterDupe(msg: prevMsg, hoveredMessageID: $hoveredMessageID)
+                  }
                 }
-            } else if index == messages.count - 1 {
-              let prevMsg = messages[index - 1]
-              HStack(spacing: 0) {
-                if msg.isUser {
-                  MessageFooterDupe(msg: prevMsg, hoveredMessageID: $hoveredMessageID)
-                  IconButtonDupe(msg: msg, hoveredMessageID: $hoveredMessageID)
-                } else {
-                  IconButtonDupe(msg: msg, hoveredMessageID: $hoveredMessageID)
-                  MessageFooterDupe(msg: prevMsg, hoveredMessageID: $hoveredMessageID)
+                ChatMessage(msg: msg)
+                  .onHover { hover in
+                    hoveredMessageID = hover ? msg.id : nil
+                  }
+                MessageFooterDupe(msg: msg, hoveredMessageID: $hoveredMessageID)
+              } else {
+                let prevMsg = session.messages[index - 1]
+                HStack(spacing: 0) {
+                  if msg.isUser {
+                    MessageFooterDupe(msg: prevMsg, hoveredMessageID: $hoveredMessageID)
+                    IconButtonDupe(msg: msg, hoveredMessageID: $hoveredMessageID)
+                  } else {
+                    IconButtonDupe(msg: msg, hoveredMessageID: $hoveredMessageID)
+                    MessageFooterDupe(msg: prevMsg, hoveredMessageID: $hoveredMessageID)
+                  }
                 }
+                ChatMessage(msg: msg)
+                  .onHover { hover in
+                    hoveredMessageID = hover ? msg.id : nil
+                  }
               }
-              ChatMessage(msg: msg)
-                .onHover { hover in
-                  hoveredMessageID = hover ? msg.id : nil
-                }
-              MessageFooterDupe(msg: msg, hoveredMessageID: $hoveredMessageID)
-            } else {
-              let prevMsg = messages[index - 1]
-              HStack(spacing: 0) {
-                if msg.isUser {
-                  MessageFooterDupe(msg: prevMsg, hoveredMessageID: $hoveredMessageID)
-                  IconButtonDupe(msg: msg, hoveredMessageID: $hoveredMessageID)
-                } else {
-                  IconButtonDupe(msg: msg, hoveredMessageID: $hoveredMessageID)
-                  MessageFooterDupe(msg: prevMsg, hoveredMessageID: $hoveredMessageID)
-                }
-              }
-              ChatMessage(msg: msg)
-                .onHover { hover in
-                  hoveredMessageID = hover ? msg.id : nil
-                }
+              IncomingMessage(chatSessionContext: session)
             }
-//            IncomingMessage(chatSessionContext: session)
           }
         }
-      }
-      .padding(20)
-      .id(session)
-      .onAppear {
-        loadSession()
+        .padding(20)
+        .id(session)
+        .onAppear {
+          loadSession()
+        }
       }
     }
   }
@@ -149,5 +158,5 @@ struct MessageFooterDupe: View {
 
 #Preview {
   ChatView(isOverlay: true)
-    .environmentObject(AppContexts())
+    .environmentObject(AppContexts.ctx)
 }

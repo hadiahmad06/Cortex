@@ -31,6 +31,7 @@ struct ContentView: View {
     
       Spacer()
       
+      ChatView(isOverlay: false)
       PromptBox(isOverlay: false)
       
     }
@@ -40,5 +41,5 @@ struct ContentView: View {
 
 #Preview {
     ContentView()
-    .environmentObject(AppContexts())
+    .environmentObject(AppContexts.ctx)
 }

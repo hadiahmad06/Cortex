@@ -12,7 +12,7 @@ class OverlayWindowController {
   static let shared = OverlayWindowController()
   private var panel: NSPanel?
 
-  var contexts: AppContexts?
+//  var contexts: AppContexts
   
   func toggle() {
     if panel == nil {
@@ -57,7 +57,7 @@ class OverlayWindowController {
 
     let hosting = NSHostingView(
         rootView: OverlayView()
-            .environmentObject(contexts!)
+          .environmentObject(AppContexts.ctx)
     )
     panel.contentView = hosting
 
