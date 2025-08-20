@@ -4,76 +4,103 @@
 @custom-variant dark (&:is(.dark *));
 
 :root {
-  /* Updated color tokens for blue-to-purple gradient theme */
-  --background: oklch(1 0 0);
-  --foreground: oklch(0.2 0 0);
-  --card: oklch(0.98 0.005 264);
-  --card-foreground: oklch(0.2 0 0);
-  --popover: oklch(1 0 0);
-  --popover-foreground: oklch(0.2 0 0);
-  --primary: oklch(0.55 0.2 264);
-  --primary-foreground: oklch(1 0 0);
-  --secondary: oklch(0.65 0.15 300);
-  --secondary-foreground: oklch(1 0 0);
-  --muted: oklch(0.96 0.01 264);
-  --muted-foreground: oklch(0.5 0 0);
-  --accent: oklch(0.65 0.15 300);
-  --accent-foreground: oklch(1 0 0);
-  --destructive: oklch(0.577 0.245 27.325);
-  --destructive-foreground: oklch(1 0 0);
-  --border: oklch(0.9 0.01 264);
-  --input: oklch(1 0 0);
-  --ring: oklch(0.55 0.2 264);
+  /* light */
+  
+  --background: oklch(0.972 0.015 102); /* linen-ish, a very light warm off-white (like #FAF0E6) */
+  --alt-background: oklch(0.822 0.055 2);
+  --foreground: oklch(0.2 0 0); /* near-black, ensures good contrast against background */
+
+  --card: oklch(0.98 0.005 264); /* almost white with a faint cool tint */
+  --card-foreground: oklch(0.2 0 0); /* dark gray/black for readability on cards */
+
+  --popover: oklch(1 0 0); /* pure white background for popovers */
+  --popover-foreground: oklch(0.2 0 0); /* dark text for popovers */
+
+  --primary: oklch(0.7 0.16 290); /* lilac */
+  --primary-foreground: oklch(1 0 0); /* white text for contrast on primary */
+
+  --secondary: oklch(0.6 0.16 290); /* darker lilac */
+  --secondary-foreground: oklch(1 0 0); /* white text on secondary */
+  
+  --muted: oklch(0.96 0.01 290); /* light gray with a slight lavender tone */
+  --muted-foreground: oklch(0.5 0 0); /* medium gray text for muted content */
+  
+  --accent: oklch(0.7 0.1 290); /* very soft lilac  */
+  --accent-foreground: oklch(1 0 0); /* white text on accent */
+  
+  --destructive: oklch(0.577 0.245 27.325); /* red/orange for errors/warnings */
+  --destructive-foreground: oklch(1 0 0); /* white text on error bg */
+  
+  --border: oklch(0.9 0.01 264); /* light grayish-lavender for borders */
+  --input: oklch(1 0 0); /* pure white inputs */
+  --ring: oklch(0.55 0.2 264); /* lilac focus ring */
+  
+  /* lilac/lavender shades with slight hue variation (for chart palettes) */
   --chart-1: oklch(0.55 0.2 264);
   --chart-2: oklch(0.65 0.15 300);
   --chart-3: oklch(0.6 0.18 280);
   --chart-4: oklch(0.5 0.22 250);
   --chart-5: oklch(0.7 0.12 320);
-  --radius: 0.75rem;
-  --sidebar: oklch(0.98 0.005 264);
-  --sidebar-foreground: oklch(0.2 0 0);
-  --sidebar-primary: oklch(0.55 0.2 264);
-  --sidebar-primary-foreground: oklch(1 0 0);
-  --sidebar-accent: oklch(0.65 0.15 300);
-  --sidebar-accent-foreground: oklch(1 0 0);
-  --sidebar-border: oklch(0.9 0.01 264);
-  --sidebar-ring: oklch(0.55 0.2 264);
+  
+  --radius: 0.75rem; /* corner rounding */
+  
+  --sidebar: oklch(0.98 0.005 264); /* off-white sidebar with subtle tint */
+  --sidebar-foreground: oklch(0.2 0 0); /* dark sidebar text */
+  --sidebar-primary: oklch(0.55 0.2 264); /* same lilac as primary */
+  --sidebar-primary-foreground: oklch(1 0 0); /* white text */
+  --sidebar-accent: oklch(0.65 0.15 300); /* same as accent */
+  --sidebar-accent-foreground: oklch(1 0 0); /* white */
+  --sidebar-border: oklch(0.9 0.01 264); /* subtle lavender border */
+  --sidebar-ring: oklch(0.55 0.2 264); /* lilac ring for sidebar focus */
 }
 
 .dark {
-  /* Updated dark mode colors for blue-to-purple theme */
-  --background: oklch(0.08 0.01 264);
-  --foreground: oklch(0.95 0 0);
-  --card: oklch(0.12 0.02 264);
-  --card-foreground: oklch(0.95 0 0);
-  --popover: oklch(0.12 0.02 264);
-  --popover-foreground: oklch(0.95 0 0);
-  --primary: oklch(0.6 0.2 264);
-  --primary-foreground: oklch(1 0 0);
-  --secondary: oklch(0.7 0.15 300);
-  --secondary-foreground: oklch(0.08 0.01 264);
-  --muted: oklch(0.15 0.02 264);
-  --muted-foreground: oklch(0.7 0 0);
-  --accent: oklch(0.7 0.15 300);
-  --accent-foreground: oklch(0.08 0.01 264);
-  --destructive: oklch(0.6 0.2 25);
-  --destructive-foreground: oklch(1 0 0);
-  --border: oklch(0.2 0.02 264);
-  --input: oklch(0.15 0.02 264);
-  --ring: oklch(0.6 0.2 264);
+  /* dark mode */
+  --background: oklch(0.08 0.01 264); /* nearly black with a faint lilac undertone */
+  --alt-background: oklch(0.822 0.055 102);
+  --foreground: oklch(0.95 0 0); /* near-white for text */
+  
+  --card: oklch(0.12 0.02 264); /* dark lilac card background */
+  --card-foreground: oklch(0.95 0 0); /* white text on cards */
+  
+  --popover: oklch(0.12 0.02 264); /* same as card for consistency */
+  --popover-foreground: oklch(0.95 0 0); /* white text */
+  
+  --primary: oklch(0.85 0.08 290); /* pastel lilac */
+  --primary-foreground: oklch(0.2 0 0); /* dark text */ 
+  
+  --secondary: oklch(0.65 0.15 290); /* richer lilac */
+  --secondary-foreground: oklch(1 0 0);
+  
+  --muted: oklch(0.15 0.02 264); /* dark grayish-lilac background for muted sections */
+  --muted-foreground: oklch(0.7 0 0); /* mid-gray text for muted sections */
+  
+  --accent: oklch(0.75 0.12 290); /* medium lilac */
+  --accent-foreground: oklch(1 0 0); /* white text */
+
+  --destructive: oklch(0.6 0.2 25); /* strong red tone for errors */
+  --destructive-foreground: oklch(1 0 0); /* white text on red */
+  
+  --border: oklch(0.2 0.02 264); /* subtle dark lavender borders */
+  --input: oklch(0.15 0.02 264); /* dark input background */
+  --ring: oklch(0.6 0.2 264); /* lilac focus ring in dark mode */
+  
+  /* lilac/purple variations tuned for dark contrast */
   --chart-1: oklch(0.6 0.2 264);
   --chart-2: oklch(0.7 0.15 300);
   --chart-3: oklch(0.65 0.18 280);
   --chart-4: oklch(0.55 0.22 250);
   --chart-5: oklch(0.75 0.12 320);
+  
   --sidebar: oklch(0.1 0.02 264);
-  --sidebar-foreground: oklch(0.95 0 0);
-  --sidebar-primary: oklch(0.6 0.2 264);
-  --sidebar-primary-foreground: oklch(1 0 0);
-  --sidebar-accent: oklch(0.7 0.15 300);
-  --sidebar-accent-foreground: oklch(0.08 0.01 264);
-  --sidebar-border: oklch(0.2 0.02 264);
-  --sidebar-ring: oklch(0.6 0.2 264);
+  --sidebar: oklch(0.1 0.02 264); /* dark sidebar background */
+  --sidebar-foreground: oklch(0.95 0 0); /* white sidebar text */
+  --sidebar-primary: oklch(0.6 0.2 264); /* lilac primary */
+  --sidebar-primary-foreground: oklch(1 0 0); /* white text */
+  --sidebar-accent: oklch(0.7 0.15 300); /* accent lilac */
+  --sidebar-accent-foreground: oklch(0.08 0.01 264); /* dark text */
+  --sidebar-border: oklch(0.2 0.02 264); /* muted lavender border */
+  --sidebar-ring: oklch(0.6 0.2 264); /* lilac focus ring */
 }
 
 @theme inline {
