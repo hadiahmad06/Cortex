@@ -6,32 +6,32 @@ const Hero = () => {
   const { scrollYProgress } = useScroll()
   const isMobile = typeof window !== 'undefined' && window.innerWidth < 768;
 
-  const leftCircleX = useTransform(scrollYProgress, [0, 1], [0, isMobile ? -100 : -250]);
-  const rightCircleX = useTransform(scrollYProgress, [0, 1], [0, isMobile ? 100 : 250]);
-  const leftCircleX2 = useTransform(scrollYProgress, [0, 1], [isMobile ? -50 : -250, isMobile ? -150 : -350]);
-  const rightCircleX2 = useTransform(scrollYProgress, [0, 1], [isMobile ? 50 : 100, isMobile ? 150 : 350]);
+  const leftCircleX = useTransform(scrollYProgress, [0, 0.8], [0, isMobile ? -100 : -300]);
+  const rightCircleX = useTransform(scrollYProgress, [0, 0.8], [0, isMobile ? 100 : 300]);
+  const leftCircleX2 = useTransform(scrollYProgress, [0, 0.8], [isMobile ? -50 : -150, isMobile ? -150 : -300]);
+  const rightCircleX2 = useTransform(scrollYProgress, [0, 0.8], [isMobile ? 50 : 150, isMobile ? 150 : 300]);
 
   return (
     <section className="relative min-h-screen flex flex-col items-center justify-center px-6 bg-background">
       {/* Left accent circle */}
       <motion.div
         style={{ x: leftCircleX }}
-        className={`absolute left-0 ${isMobile ? 'top-1/3' : 'sm:top-1/2'} -translate-y-1/2 -translate-x-1/2 rounded-full bg-primary opacity-40 pointer-events-none ${isMobile ? 'w-72 h-72' : 'w-192 h-192'}`}
+        className={`absolute left-0 top-1/3 sm:top-1/2 -translate-y-1/2 -translate-x-1/2 rounded-full bg-primary opacity-40 pointer-events-none w-72 h-72 md:w-192 md:h-192 filter blur-xl`}
       />
       {/* Right accent circle */}
       <motion.div
         style={{ x: rightCircleX }}
-        className={`absolute right-0 ${isMobile ? 'bottom-1/3' : 'sm:top-1/2'} -translate-y-1/2 translate-x-1/2 rounded-full bg-primary opacity-40 pointer-events-none ${isMobile ? 'w-72 h-72' : 'w-192 h-192'}`}
+        className={`absolute right-0 bottom-1/3 sm:top-1/2 -translate-y-1/2 translate-x-1/2 rounded-full bg-primary opacity-40 pointer-events-none w-72 h-72 md:w-192 md:h-192 filter blur-xl`}
       />
       {/* Additional left smaller circle */}
       <motion.div
         style={{ x: leftCircleX2 }}
-        className={`absolute left-0 ${isMobile ? 'top-1/3' : 'sm:top-1/2'} -translate-y-1/2 -translate-x-1/2 rounded-full bg-primary opacity-40 pointer-events-none ${isMobile ? 'w-72 h-72' : 'w-192 h-192'}`}
+        className={`absolute left-0 top-1/3 sm:top-1/2 -translate-y-1/2 -translate-x-1/2 rounded-full bg-primary opacity-30 pointer-events-none w-72 h-72 md:w-192 md:h-192 filter blur-md`}
       />
       {/* Additional right smaller circle */}
       <motion.div
         style={{ x: rightCircleX2 }}
-        className={`absolute right-0 ${isMobile ? 'bottom-1/3' : 'sm:top-1/2'} -translate-y-1/2 translate-x-1/2 rounded-full bg-primary opacity-40 pointer-events-none ${isMobile ? 'w-72 h-72' : 'w-192 h-192'}`}
+        className={`absolute right-0 bottom-1/3 sm:top-1/2 -translate-y-1/2 translate-x-1/2 rounded-full bg-primary opacity-30 pointer-events-none w-72 h-72 md:w-192 md:h-192 filter blur-md`}
       />
 
       {/* Main content */}
