@@ -15,6 +15,14 @@ public struct ChatAPI {
     print("Initializing chat session...")
     // TODO: Add API call to initialize chat session here in the future
   }
+  
+  static func sendPrompt(_ prompt: String) -> UUID? {
+    if prompt == "" {
+      return nil
+    } else {
+      return UUID()
+    }
+  }
     
   static func fetchMessages(for id: UUID?) -> [Message] {
     if (id == nil) {

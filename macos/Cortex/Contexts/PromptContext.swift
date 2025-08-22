@@ -1,53 +1,36 @@
+////
+////  PromptContext.swift
+////  Cortex
+////
+////  Created by Hadi Ahmad on 8/13/25.
+////
 //
-//  PromptContext.swift
-//  Cortex
+//import SwiftUI
+//import Combine
 //
-//  Created by Hadi Ahmad on 8/13/25.
+//class PromptContext: ObservableObject {
+//  @Published var prompt: String = "" // stored draft
+//  
+//  func sendCurrentPrompt(forOverlay: Bool) {
+//    ChatAPI.sendPrompt(prompt)
+//    prompt = ""
+//  }
+//}
 //
-
-import SwiftUI
-import Combine
-
-class PromptContext: ObservableObject {
-  @Published private var prompts: [String: String] = [:] // stored drafts per chatID
-
-  // Separate active text for each UI
-  @Published var windowInputText: String = ""
-  @Published var overlayInputText: String = ""
-  
-  @Published private var overlayChatId: String = "default" {
-    didSet { commitInput(forOverlay: true, chatID: oldValue) }
-  }
-  @Published private var windowChatId: String = "default" {
-    didSet { commitInput(forOverlay: false, chatID: oldValue) }
-  }
-  
-  func chatId(forOverlay: Bool) -> Binding<String> {
-    forOverlay
-      ? Binding(get: { self.overlayChatId },
-               set: { self.overlayChatId = $0 })
-      : Binding(get: { self.windowChatId },
-                set: { self.windowChatId = $0 })
-  }
-  
-  func commitInput(forOverlay: Bool, chatID: String) {
-    let text = forOverlay ? overlayInputText : windowInputText
-    prompts[chatID] = text
-  }
-  
-  func getPrompt(for chatID: String) -> String {
-    prompts[chatID, default: ""]
-  }
-
-  func setPrompt(_ text: String, for chatID: String) {
-    prompts[chatID] = text
-  }
-  
-  func sendCurrentPrompt(forOverlay: Bool) {
-    if forOverlay {
-      overlayInputText = ""
-    } else {
-      windowInputText = ""
-    }
-  }
-}
+//class PromptManager: ObservableObject {
+//  @Published private var contexts: [UUID: PromptContext] = [:]
+//
+//  func getContext(for id: UUID) -> PromptContext {
+//    if let context = contexts[id] {
+//      return context
+//    } else {
+//      let newContext = PromptContext()
+//      contexts[id] = newContext
+//      return newContext
+//    }
+//  }
+//
+//  func removeContext(for id: UUID) {
+//    contexts.removeValue(forKey: id)
+//  }
+//}

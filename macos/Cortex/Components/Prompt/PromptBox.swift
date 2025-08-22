@@ -9,15 +9,26 @@ import SwiftUI
 
 struct PromptBox: View {
   @EnvironmentObject var ctx: AppContexts
+  
   var isOverlay: Bool
   @State private var isHovered: Bool = false
   @State private var isFirstResponder: Bool = false // might change later
   @State private var measuredTextHeight: CGFloat = 30
   
+  @ObservedObject private var session: ChatSessionContext
+  
+  init(isOverlay: Bool) {
+    self.isOverlay = isOverlay
+    let manager = AppContexts.ctx.chatContext
+    let resolvedSession = isOverlay
+      ? manager.session(for: manager.overlayChatID)
+      : manager.session(for: manager.windowChatID)
+    _session = ObservedObject(initialValue: resolvedSession)
+  }
+  
   var body: some View {
-    
-    let inputText = isOverlay ? $ctx.promptContext.overlayInputText : $ctx.promptContext.windowInputText
-    let isInputEmpty = inputText.wrappedValue.isEmpty
+
+    let isInputEmpty = session.prompt.isEmpty
     
     VStack(alignment: .trailing, spacing: 8) {
       ZStack(alignment: .topLeading) {
@@ -27,10 +38,10 @@ struct PromptBox: View {
             .foregroundColor(.white.opacity(0.4))
         }
         AutoGrowingTextView(
-          text: inputText,
+          text: $session.prompt,
           isFirstResponder: $isFirstResponder,
           measuredHeight: $measuredTextHeight,
-          onEnterPressed: {ctx.promptContext.sendCurrentPrompt(forOverlay: isOverlay)},
+          onEnterPressed: {session.sendCurrentPrompt()},
           maxHeight: 120
         )
         .onTapGesture {
@@ -43,7 +54,7 @@ struct PromptBox: View {
       .padding(.horizontal, 16)
       
 //      ParentTextView(
-//        inputTextBinding: inputTextBinding,
+//        promptBinding: promptBinding,
 //        isFirstResponder: $isFirstResponder,
 //        onEnterPressed: {ctx.promptContext.sendCurrentPrompt(forOverlay: isOverlay)}
 //      )
