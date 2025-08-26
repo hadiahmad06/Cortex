@@ -78,13 +78,13 @@ public struct ChatAPI {
             isPinned: false,
             timestamp: Date().addingTimeInterval(-260)
           ),
-//          Message(
-//            id: UUID(),
-//            text: "You're welcome! Let me know if you have more questions.",
-//            isUser: false,
-//            isPinned: false,
-//            timestamp: Date().addingTimeInterval(-250)
-//          )
+          Message(
+            id: UUID(),
+            text: "You're welcome! Let me know if you have more questions.",
+            isUser: false,
+            isPinned: false,
+            timestamp: Date().addingTimeInterval(-250)
+          )
         ]
 
     }

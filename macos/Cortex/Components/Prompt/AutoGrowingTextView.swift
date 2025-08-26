@@ -18,7 +18,7 @@ struct AutoGrowingTextView: NSViewRepresentable {
         scrollView.verticalScrollElasticity = .none
         scrollView.borderType = .noBorder
 
-        let textView = FocusableTextView()
+        let textView = FocusableTextView(onEnterPressed: onEnterPressed)
         textView.drawsBackground = false
         textView.backgroundColor = .clear
         textView.isRichText = false
@@ -196,20 +196,40 @@ struct AutoGrowingTextView: NSViewRepresentable {
 
 // Custom NSTextView to reliably focus and activate window on click inside non-activating panels
 final class FocusableTextView: NSTextView {
-    var onEnterPressed: (() -> Void)?
+  var onEnterPressed: (() -> Void)
+  
+  init(onEnterPressed: @escaping () -> Void) {
+    self.onEnterPressed = onEnterPressed
+    let layoutManager = NSLayoutManager()
+    let textContainer = NSTextContainer(size:
+      NSSize(
+        width: CGFloat.greatestFiniteMagnitude,
+        height: CGFloat.greatestFiniteMagnitude
+      )
+    )
+    layoutManager.addTextContainer(textContainer)
+    let textStorage = NSTextStorage()
+    textStorage.addLayoutManager(layoutManager)
 
-    override func keyDown(with event: NSEvent) {
-        // keyCode 36 = Return/Enter (main keyboard), keyCode 76 = Enter (numeric keypad)
-        if (event.keyCode == 36 || event.keyCode == 76) {
-            if event.modifierFlags.contains(.shift) {
-                // Insert newline as usual if Shift is pressed
-                super.keyDown(with: event)
-            } else {
-                // Trigger the enter pressed action
-                onEnterPressed?()
-            }
-        } else {
-            super.keyDown(with: event)
-        }
+    super.init(frame: .zero, textContainer: textContainer)
+  }
+  
+  required init?(coder: NSCoder) {
+    fatalError("init(coder:) has not been implemented")
+  }
+  
+  override func keyDown(with event: NSEvent) {
+    // keyCode 36 = Return/Enter (main keyboard), keyCode 76 = Enter (numeric keypad)
+    if (event.keyCode == 36 || event.keyCode == 76) {
+      if event.modifierFlags.contains(.shift) {
+        // Insert newline as usual if Shift is pressed
+        super.keyDown(with: event)
+      } else {
+        // Trigger the enter pressed action
+        onEnterPressed()
+      }
+    } else {
+      super.keyDown(with: event)
     }
+  }
 }

@@ -85,7 +85,7 @@ struct PromptBox: View {
           help: "Use voice to write your prompt"
         )
         Button(action: {
-          // Send action
+          session.sendCurrentPrompt()
         }) {
           Image(systemName: "arrow.up")
             .foregroundColor(isInputEmpty ? .black : .black.opacity(0.8))
@@ -93,13 +93,13 @@ struct PromptBox: View {
             .frame(width: 36, height: 36)
             .background(
               Circle()
-                .fill(isInputEmpty ? Color.gray.opacity(0.75) : Color.white)
+                .fill((isInputEmpty || session.isIncoming) ? Color.gray.opacity(0.75) : Color.white)
             )
             .help("Submit prompt")
             .accessibilityLabel("Submit the prompt")
         }
         .padding(.leading, 8)
-        .disabled(isInputEmpty)
+        .disabled(isInputEmpty || session.isIncoming)
         .buttonStyle(PlainButtonStyle())
       }
       .padding(.bottom, 8)

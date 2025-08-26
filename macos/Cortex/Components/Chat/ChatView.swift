@@ -98,7 +98,7 @@ struct ChatView: View {
             }
           }
           IncomingMessage(chatSessionContext: session)
-            .padding(.vertical, 28)
+            .padding(.bottom, 28)
         }
         .padding(20)
         .id(session)
