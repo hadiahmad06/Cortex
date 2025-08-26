@@ -9,7 +9,6 @@ import SwiftUI
 
 struct IncomingMessage: View {
   @ObservedObject var chatSessionContext: ChatSessionContext
-  @State private var timer: Timer? = nil
   
   @State private var animation: Double = 1.0
   
@@ -40,8 +39,8 @@ struct IncomingMessage: View {
           .frame(maxWidth: .infinity, alignment: .leading)
           .onAppear {
             animation = 1
-            timer?.invalidate()
-            timer = Timer.scheduledTimer(withTimeInterval: 0.6, repeats: true) { _ in
+            withAnimation(
+              .easeInOut(duration: 0.6).repeatForever(autoreverses: true)) {
               animation = (animation + 1).truncatingRemainder(dividingBy: 3)
             }
           }
