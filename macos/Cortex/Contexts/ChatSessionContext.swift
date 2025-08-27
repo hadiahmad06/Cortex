@@ -42,36 +42,55 @@ class ChatSessionContext: ObservableObject {
   }
 
   // Finalize the incoming message into messages array
-  func finalizeIncomingMessage() {
+  func finalizeIncomingMessage(id: UUID) {
+    print("finalizing message")
     guard !incomingMessageText.isEmpty else { return }
     let message = Message(
-      id: UUID(),
+      id: id,
+      backendID: id,
       text: incomingMessageText,
       isUser: false, // or true if you’re streaming user messages
       isPinned: false,
-      timestamp: Date()
+      timestamp: Date(),
+      status: .received
     )
-    messages.append(message)
     incomingMessageText = ""
     isIncoming = false
+    messages.append(message)
+  }
+  
+  func onComplete(localID: UUID, promptID: UUID, responseID: UUID) {
+    let msg = messages.first(where: { $0.id == localID })
+    msg?.backendID = promptID
+    finalizeIncomingMessage(id: responseID)
   }
 
   func sendCurrentPrompt() {
     if(!isIncoming && prompt != "") {
       startIncomingMessage()
-      messages.append(
-        Message(
-          id: UUID(),
-          text: self.prompt,
-          isUser: true,
-          isPinned: false,
-          timestamp: Date())
+      let msg = Message(
+        id: UUID(),
+        text: self.prompt,
+        isUser: true,
+        isPinned: false,
+        timestamp: Date(),
+        status: .pending
       )
-      if let id = ChatAPI.sendPrompt(self.prompt) {
+      messages.append(msg)
+      if messages.isEmpty {
         AppContexts.ctx.chatContext.updateUUID(tempID: self.id, id: id)
       }
-    
-    self.prompt = ""
+      let curriedOnComplete: (UUID, UUID) -> Void = { [weak self] promptID, responseID in
+          self?.onComplete(localID: msg.id, promptID: promptID, responseID: responseID)
+      }
+      ChatAPI.sendPrompt(
+        self.prompt,
+        sessionID: self.id,
+        onChunk: addIncomingChunk,
+        onComplete: curriedOnComplete,
+        onError: {_ in } // will add later
+      )
+      self.prompt = ""
     }
   }
 
@@ -134,4 +153,3 @@ class ChatManager: ObservableObject {
     }
   }
 }
-

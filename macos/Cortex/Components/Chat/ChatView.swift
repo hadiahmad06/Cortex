@@ -7,12 +7,40 @@
 
 import SwiftUI
 
-struct Message: Identifiable {
+enum MessageStatus {
+  case pending
+  case sending
+  case delivered
+  case received
+  case failed
+}
+
+class Message: Identifiable {
   let id: UUID
+  var backendID: UUID?
   let text: String
   let isUser: Bool
   var isPinned: Bool
-  let timestamp: Date
+  var timestamp: Date
+  @Published var status: MessageStatus
+  
+  init(
+    id: UUID = UUID(),
+    backendID: UUID? = nil,
+    text: String,
+    isUser: Bool,
+    isPinned: Bool = false,
+    timestamp: Date = Date(),
+    status: MessageStatus = .pending
+  ) {
+    self.id = id
+    self.backendID = backendID
+    self.text = text
+    self.isUser = isUser
+    self.isPinned = isPinned
+    self.timestamp = timestamp
+    self.status = status
+  }
 }
 
 struct ChatView: View {
@@ -135,6 +163,7 @@ struct IconButtonDupe: View {
     .onHover { hover in
       hoveredMessageID = hover ? msg.id : nil
     }
+//    .id(msg.id)
   }
 }
 
@@ -154,6 +183,7 @@ struct MessageFooterDupe: View {
     .onHover { hover in
       hoveredMessageID = hover ? msg.id : nil
     }
+//    .id(msg.id)
   }
 }
 
@@ -193,7 +223,7 @@ struct ChatView_Previews: PreviewProvider {
               } else {
                 t.invalidate()
                 DispatchQueue.main.async {
-                    chatSessionContext.finalizeIncomingMessage()
+                  chatSessionContext.finalizeIncomingMessage(id: UUID())
                 }
               }
             }
