@@ -66,8 +66,9 @@ struct ChatView: View {
     print(session.messages)
   }
   
+  // TODO: fix issue where ContentView doesnt update when a message is added.
   var body: some View {
-    if (!isOverlay && session.messages.isEmpty) {
+    if (!isOverlay && session.messages.isEmpty && !session.isIncoming) {
       VStack(spacing: 8) {
         Text("Start chatting now!")
           .font(.title2)

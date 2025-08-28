@@ -65,6 +65,7 @@ class ChatSessionContext: ObservableObject {
     finalizeIncomingMessage(id: responseID)
   }
 
+  // TODO: bug where response fails to render MessageFooter and IconButton until another change is made.
   func sendCurrentPrompt() {
     if(!isIncoming && prompt != "") {
       startIncomingMessage()
@@ -121,7 +122,7 @@ class ChatManager: ObservableObject {
   @Published private var sessions: [UUID: ChatSessionContext] = [:]
 
   @Published var overlayChatID: UUID? = UUID()
-  @Published var windowChatID: UUID? = nil
+  @Published var windowChatID: UUID? = UUID()
 
   func session(for chatID: UUID? = nil) -> ChatSessionContext {
     let resolvedID = chatID ?? UUID()
