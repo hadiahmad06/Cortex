@@ -124,6 +124,19 @@ class ChatManager: ObservableObject {
   @Published var overlayChatID: UUID? = UUID()
   @Published var windowChatID: UUID? = UUID()
 
+  func getChatSessions() -> [(String, Date, UUID)] {
+    // For each session, return a tuple: (empty string, latest timestamp, UUID)
+    return sessions.values.map { session in
+      let latestTimestamp: Date
+      if let lastMessage = session.messages.last {
+        latestTimestamp = lastMessage.timestamp
+      } else {
+        latestTimestamp = Date()
+      }
+      return ("temp name", latestTimestamp, session.id)
+    }
+  }
+  
   func session(for chatID: UUID? = nil) -> ChatSessionContext {
     let resolvedID = chatID ?? UUID()
     if let existingSession = sessions[resolvedID] {

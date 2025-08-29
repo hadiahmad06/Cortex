@@ -39,6 +39,7 @@ struct CortexApp: App {
     WindowGroup {
       ContentView()
         .environmentObject(appContexts)
+      
     }
   }
 }
