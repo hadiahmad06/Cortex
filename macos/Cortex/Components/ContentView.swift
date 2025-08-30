@@ -17,60 +17,7 @@ struct ContentView: View {
     let sessions = ctx.chatContext.getChatSessions()
     HStack {
       if isSidebarOpen {
-        VStack {
-          TextField("Search in development...", text: $searchText)
-            .textFieldStyle(.roundedBorder)
-            .padding(.top, 6)
-          ScrollView {
-            LazyVStack(alignment: .leading, spacing: 4) {
-              let sortedSessions = sessions.sorted { $0.1 > $1.1 }
-              ForEach(sortedSessions, id: \.2) { (title, date, id) in
-                HStack {
-                  VStack(alignment: .leading, spacing: 2) {
-                    Text(title)
-                      .font(.headline)
-                      .foregroundColor(.primary)
-                      .lineLimit(1)
-                    Text(date, style: .date)
-                      .font(.caption)
-                      .foregroundColor(.secondary)
-                  }
-                  Spacer()
-                  Image(systemName: "chevron.right")
-                    .foregroundColor(.gray)
-                }
-                .padding(.vertical, 6)
-                .padding(.horizontal, 10)
-                .background(
-                  RoundedRectangle(cornerRadius: 8)
-                    .fill(Color.gray.opacity(0.1))
-                )
-                .padding(.vertical, 6)
-                //            .hoverEffect()
-              }
-            }
-          }
-          .frame(maxWidth: 200, maxHeight: .infinity)
-          HStack(spacing: 4) {
-            Text("Settings")
-              .font(.title3)
-              .fontWeight(.bold)
-            IconButton(
-              systemName: "gear",
-              action: {},
-              isToggled: .constant(false),
-              tooltip: "Settings (⌘I)",
-              help: "Open settings menu",
-              size: 32,
-              fontSize: 16
-            )
-          }
-          .padding(.bottom, 20)
-        }
-        .frame(maxWidth: 200, maxHeight: .infinity)
-        .padding(.horizontal, 10)
-        .background(Color.black.opacity(0.10))
-        
+        SidebarView(sessions: sessions)
       }
       VStack {
         Spacer()
