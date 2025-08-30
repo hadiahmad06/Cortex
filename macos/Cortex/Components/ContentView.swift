@@ -9,15 +9,17 @@ import SwiftUI
 
 struct ContentView: View {
   @State var isSidebarOpen = true
-  @State var searchText = ""
   
   @EnvironmentObject var ctx: AppContexts
   
   var body: some View {
     let sessions = ctx.chatContext.getChatSessions()
-    HStack {
+    HStack(spacing: 0) {
       if isSidebarOpen {
-        SidebarView(sessions: sessions)
+        SidebarView(
+          isSidebarOpen: $isSidebarOpen,
+          sessions: sessions
+        )
       }
       VStack {
         Spacer()
@@ -37,10 +39,10 @@ struct ContentView: View {
         HStack(spacing: 4) {
           IconButton(
             systemName: "sidebar.left",
-            action: OverlayWindowController.shared.toggle,
+            action: {isSidebarOpen.toggle()},
             isToggled: .constant(false),
-            tooltip: "Open in overlay (⌘O)",
-            help: "Open chat in overlay window",
+            tooltip: "Toggle Sidebar (⌘S)",
+            help: "Toggle the sidebar",
             size: 32,
             fontSize: 16
           )
@@ -48,8 +50,8 @@ struct ContentView: View {
             systemName: "square.and.pencil",
             action: OverlayWindowController.shared.toggle,
             isToggled: .constant(false),
-            tooltip: "Open in overlay (⌘O)",
-            help: "Open chat in overlay window",
+            tooltip: "Create new chat (⌘N)",
+            help: "Start a new chat",
             size: 32,
             fontSize: 16
           )

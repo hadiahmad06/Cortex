@@ -55,6 +55,16 @@ public struct ChatAPI {
       return []
     } else {
       return [
+        Message(
+          id: UUID(),
+          text: "old response here",
+          isUser: false,
+          isPinned: false,
+          timestamp: Date().addingTimeInterval(-300),
+          status: .delivered
+        )
+      ]
+      return [
           Message(
             id: UUID(),
             text: "Hello, how are you?",

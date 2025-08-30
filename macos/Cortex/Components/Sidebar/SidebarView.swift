@@ -9,6 +9,12 @@ import SwiftUI
 
 struct SidebarView: View {
   @State var searchText: String = ""
+  @Binding var isSidebarOpen: Bool
+  
+  @State var sidebarWidth: CGFloat = 350
+  private let minSidebarWidth: CGFloat = 200
+  private let maxSidebarWidth: CGFloat = 600
+  
   var sessions: [(String, Date, UUID)]
 
   var body: some View {
@@ -25,12 +31,38 @@ struct SidebarView: View {
           }
         }
       }
-      .frame(maxWidth: 200, maxHeight: .infinity)
+      .frame(maxWidth: .infinity, maxHeight: .infinity)
 
       SettingsButton()
     }
-    .frame(maxWidth: 200, maxHeight: .infinity)
     .padding(.horizontal, 10)
     .background(Color.black.opacity(0.10))
+    .frame(maxWidth: sidebarWidth, maxHeight: .infinity)
+    
+    Rectangle()
+      .fill(Color.clear)
+      .frame(width: 4)
+      .contentShape(Rectangle().inset(by: -4))
+      .gesture(
+        DragGesture()
+          .onChanged { value in
+            let newWidth = sidebarWidth + value.translation.width
+            if(newWidth + 150 < minSidebarWidth) {
+              isSidebarOpen = false
+            } else {
+              isSidebarOpen = true
+            }
+            if newWidth >= minSidebarWidth && newWidth <= maxSidebarWidth {
+              sidebarWidth = newWidth
+            }
+          }
+      )
+      .onHover { hovering in
+        if hovering {
+          NSCursor.resizeLeftRight.push()
+        } else {
+          NSCursor.pop()
+        }
+      }
   }
 }
