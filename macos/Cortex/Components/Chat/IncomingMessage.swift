@@ -8,7 +8,7 @@
 import SwiftUI
 
 struct IncomingMessage: View {
-  @ObservedObject var chatSessionContext: ChatSessionContext
+  @ObservedObject var chatSessionContext: ChatSession
   
   @State private var animation: Double = 1.0
   

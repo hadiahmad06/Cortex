@@ -7,42 +7,6 @@
 
 import SwiftUI
 
-enum MessageStatus {
-  case pending
-  case sending
-  case delivered
-  case received
-  case failed
-}
-
-class Message: Identifiable {
-  let id: UUID
-  var backendID: UUID?
-  let text: String
-  let isUser: Bool
-  var isPinned: Bool
-  var timestamp: Date
-  @Published var status: MessageStatus
-  
-  init(
-    id: UUID = UUID(),
-    backendID: UUID? = nil,
-    text: String,
-    isUser: Bool,
-    isPinned: Bool = false,
-    timestamp: Date = Date(),
-    status: MessageStatus = .pending
-  ) {
-    self.id = id
-    self.backendID = backendID
-    self.text = text
-    self.isUser = isUser
-    self.isPinned = isPinned
-    self.timestamp = timestamp
-    self.status = status
-  }
-}
-
 struct ChatView: View {
   @EnvironmentObject var ctx: AppContexts
   var isOverlay: Bool
@@ -50,7 +14,7 @@ struct ChatView: View {
   // Hover tracking
   @State private var hoveredMessageID: UUID?
   
-  @ObservedObject var session: ChatSessionContext
+  @ObservedObject var session: ChatSession
 
   init(isOverlay: Bool) {
     self.isOverlay = isOverlay
@@ -198,7 +162,7 @@ struct ChatView_Previews: PreviewProvider {
   
   
   struct StreamingPreview: View {
-    private var chatSessionContext: ChatSessionContext
+    private var chatSessionContext: ChatSession
     
     init() {
       chatSessionContext = AppContexts.ctx.chatContext.session(for: nil)

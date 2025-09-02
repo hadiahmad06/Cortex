@@ -8,6 +8,7 @@
 import AppKit
 import SwiftUI
 
+@MainActor
 class OverlayWindowController {
   static let shared = OverlayWindowController()
   private var panel: NSPanel?

@@ -1,34 +1,31 @@
 //
-//  ChatSessionContext.swift
+//  ChatSession.swift
 //  Cortex
 //
-//  Created by Hadi Ahmad on 8/16/25.
+//  Created by Hadi Ahmad on 8/31/25.
 //
 
 import SwiftUI
 import Combine
 
-class ChatSessionContext: ObservableObject {
+class ChatSession: ObservableObject {
   
   // Local UUID (will sync later)
   @Published var id: UUID
-
-  @Published var prompt: String = ""
-
+  
+  var createdAt: Date
+  var updatedAt: Date
+  
   // All messages, including finalized ones
   @Published var messages: [Message] = []
+
+  @Published var prompt: String = ""
 
   // Current streaming message
   @Published var incomingMessageText: String = ""
   
   // flag indicating if a message is currently streaming
   @Published var isIncoming: Bool = false
-
-  // Append a finalized message
-//  func appendMessage(_ message: Message) {
-//    startIncomingMessage()
-//    messages.append(message)
-//  }
 
   // Start streaming a new message
   func startIncomingMessage() {
@@ -79,7 +76,9 @@ class ChatSessionContext: ObservableObject {
       )
       messages.append(msg)
       if messages.isEmpty {
-        AppContexts.ctx.chatContext.updateUUID(tempID: self.id, id: id)
+        Task { @MainActor in
+            AppContexts.ctx.chatContext.updateUUID(tempID: self.id, id: id)
+        }
       }
       let curriedOnComplete: (UUID, UUID) -> Void = { [weak self] promptID, responseID in
           self?.onComplete(localID: msg.id, promptID: promptID, responseID: responseID)
@@ -94,76 +93,27 @@ class ChatSessionContext: ObservableObject {
       self.prompt = ""
     }
   }
-
-  // Optional: clear all messages
-//    func clearMessages() {
-//        messages.removeAll()
-//        incomingMessageText = ""
-//        isIncoming = false
-//    }
-
+  
   // Explicit initializer to set id manually
-  init(id: UUID) {
+  init(
+    id: UUID,
+    createdAt: Date = Date(),
+    updatedAt: Date = Date(),
+    messages: [Message] = []
+  ) {
     self.id = id
+    self.createdAt = createdAt
+    self.updatedAt = updatedAt
+    self.messages = messages
   }
 }
 
-extension ChatSessionContext: Hashable {
-  static func == (lhs: ChatSessionContext, rhs: ChatSessionContext) -> Bool {
+extension ChatSession: Hashable {
+  static func == (lhs: ChatSession, rhs: ChatSession) -> Bool {
     lhs.id == rhs.id
   }
 
   func hash(into hasher: inout Hasher) {
     hasher.combine(id)
-  }
-}
-
-class ChatManager: ObservableObject {
-  @Published private var sessions: [UUID: ChatSessionContext] = [:]
-
-  @Published var overlayChatID: UUID? = UUID()
-  @Published var windowChatID: UUID? = UUID()
-
-  func getChatSessions() -> [(String, Date, UUID)] {
-    // For each session, return a tuple: (empty string, latest timestamp, UUID)
-    return sessions.values.map { session in
-      let latestTimestamp: Date
-      if let lastMessage = session.messages.last {
-        latestTimestamp = lastMessage.timestamp
-      } else {
-        latestTimestamp = Date()
-      }
-      return ("temp name", latestTimestamp, session.id)
-    }
-  }
-  
-  func session(for chatID: UUID? = nil) -> ChatSessionContext {
-    let resolvedID = chatID ?? UUID()
-    if let existingSession = sessions[resolvedID] {
-      return existingSession
-    } else {
-      let newSession = ChatSessionContext(id: resolvedID)
-      sessions[resolvedID] = newSession
-      return newSession
-    }
-  }
-  
-  func updateUUID(tempID: UUID, id: UUID) {
-    if let existingSession = sessions[tempID] {
-      // updates temp id
-      existingSession.id = id
-      sessions.removeValue(forKey: tempID)
-      sessions[id] = existingSession
-      if(overlayChatID == tempID) {
-        overlayChatID = id
-      }
-      if(windowChatID == tempID) {
-        windowChatID = id
-      }
-    } else {
-      // creates new (from fetch usually)
-      let newSession = ChatSessionContext(id: id)
-      sessions[id] = newSession
-    }
   }
 }

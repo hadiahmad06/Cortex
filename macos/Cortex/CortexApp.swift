@@ -18,6 +18,7 @@ class AppDelegate: NSObject, NSApplicationDelegate {
   }
 }
 
+@MainActor
 class AppContexts: ObservableObject {
   static var ctx = AppContexts()
   

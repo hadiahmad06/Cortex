@@ -12,6 +12,7 @@ import OSLog
 private let logger = Logger(subsystem: "com.yourcompany.Cortex", category: "Hotkey")
 private var globalHotKeyRef: EventHotKeyRef?
 
+@MainActor
 func registerGlobalHotkey() {
     let hotKeyID = EventHotKeyID(signature: OSType("CRTX".fourCharCodeValue), id: 1)
 

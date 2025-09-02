@@ -15,7 +15,7 @@ struct PromptBox: View {
   @State private var isFirstResponder: Bool = false // might change later
   @State private var measuredTextHeight: CGFloat = 30
   
-  @ObservedObject private var session: ChatSessionContext
+  @ObservedObject private var session: ChatSession
   
   init(isOverlay: Bool) {
     self.isOverlay = isOverlay
