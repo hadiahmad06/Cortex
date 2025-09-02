@@ -51,6 +51,7 @@ public struct ChatAPI {
   }
     
   static func fetchMessages(for id: UUID?) -> [Message] {
+    return []
     if (id == nil) {
       return []
     } else {

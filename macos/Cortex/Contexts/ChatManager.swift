@@ -12,10 +12,19 @@ import SwiftData
 @MainActor
 class ChatManager: ObservableObject {
   @Environment(\.modelContext) private var context: ModelContext
-  @Published private var sessions: [UUID: ChatSession] = [:]
+  @Published private var sessions: [UUID: ChatSession] = [:] {
+    didSet {
+      saveSessions()
+    }
+  }
 
   @Published var overlayChatID: UUID? = UUID()
   @Published var windowChatID: UUID? = UUID()
+
+  // TODO: lazy load sessions
+  init() {
+    loadSessions()
+  }
 
   func getChatSessions() -> [(String, Date, UUID)] {
     // For each session, return a tuple: (empty string, latest timestamp, UUID)

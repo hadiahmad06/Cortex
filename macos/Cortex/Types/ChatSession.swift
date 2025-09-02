@@ -14,10 +14,24 @@ class ChatSession: ObservableObject {
   @Published var id: UUID
   
   var createdAt: Date
-  var updatedAt: Date
+  var updatedAt: Date {
+    didSet {
+      Task { @MainActor in
+        AppContexts.ctx.chatContext.saveSessions()
+      }
+    }
+  }
+  
+  var title: String?
+  var aliases: [String]
   
   // All messages, including finalized ones
-  @Published var messages: [Message] = []
+  // TODO: update on message changes rather than just array changes.
+  @Published var messages: [Message] = [] {
+    didSet {
+      updatedAt = Date()
+    }
+  }
 
   @Published var prompt: String = ""
 
@@ -99,11 +113,15 @@ class ChatSession: ObservableObject {
     id: UUID,
     createdAt: Date = Date(),
     updatedAt: Date = Date(),
+    title: String?,
+    aliases: [String] = [],
     messages: [Message] = []
   ) {
     self.id = id
     self.createdAt = createdAt
     self.updatedAt = updatedAt
+    self.title = title
+    self.aliases = aliases
     self.messages = messages
   }
 }
