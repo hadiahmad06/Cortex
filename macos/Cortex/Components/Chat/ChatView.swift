@@ -9,21 +9,10 @@ import SwiftUI
 
 struct ChatView: View {
   @EnvironmentObject var ctx: AppContexts
-  var isOverlay: Bool
-  
   // Hover tracking
   @State private var hoveredMessageID: UUID?
   
   @ObservedObject var session: ChatSession
-
-  init(isOverlay: Bool) {
-    self.isOverlay = isOverlay
-    let manager = AppContexts.ctx.chatContext
-    let resolvedSession = isOverlay
-      ? manager.session(for: manager.overlayChatID)
-      : manager.session(for: manager.windowChatID)
-    _session = ObservedObject(initialValue: resolvedSession)
-  }
   
   private func loadSession() {
     session.messages = ChatAPI.fetchMessages(for: session.id)
@@ -32,72 +21,56 @@ struct ChatView: View {
   
   // TODO: fix issue where ContentView doesnt update when a message is added.
   var body: some View {
-    if (!isOverlay && session.messages.isEmpty && !session.isIncoming) {
-      VStack(spacing: 8) {
-        Text("Start chatting now!")
-          .font(.title2)
-          .fontWeight(.semibold)
-          .frame(maxWidth: .infinity, alignment: .center)
-          .multilineTextAlignment(.center)
-        Text("Pick any model you like — or let us choose one for you.")
-          .font(.body)
-          .foregroundColor(.secondary)
-          .multilineTextAlignment(.center)
-      }
-      .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .center)
-    } else {
-      ScrollView {
-        LazyVStack(spacing: 0) {
-          ForEach(Array(session.messages.enumerated()), id: \.element.id) { index, msg in
-            VStack(spacing: 0) {
-              if index == 0 {
-                IconButtonDupe(msg: msg, hoveredMessageID: $hoveredMessageID)
-                ChatMessage(msg: msg)
-                  .onHover { hover in
-                    hoveredMessageID = hover ? msg.id : nil
-                  }
-              } else if index == session.messages.count - 1 {
-                let prevMsg = session.messages[index - 1]
-                HStack(spacing: 0) {
-                  if msg.isUser {
-                    MessageFooterDupe(msg: prevMsg, hoveredMessageID: $hoveredMessageID)
-                    IconButtonDupe(msg: msg, hoveredMessageID: $hoveredMessageID)
-                  } else {
-                    IconButtonDupe(msg: msg, hoveredMessageID: $hoveredMessageID)
-                    MessageFooterDupe(msg: prevMsg, hoveredMessageID: $hoveredMessageID)
-                  }
+    ScrollView {
+      LazyVStack(spacing: 0) {
+        ForEach(Array(session.messages.enumerated()), id: \.element.id) { index, msg in
+          VStack(spacing: 0) {
+            if index == 0 {
+              IconButtonDupe(msg: msg, hoveredMessageID: $hoveredMessageID)
+              ChatMessage(msg: msg)
+                .onHover { hover in
+                  hoveredMessageID = hover ? msg.id : nil
                 }
-                ChatMessage(msg: msg)
-                  .onHover { hover in
-                    hoveredMessageID = hover ? msg.id : nil
-                  }
-                MessageFooterDupe(msg: msg, hoveredMessageID: $hoveredMessageID)
-              } else {
-                let prevMsg = session.messages[index - 1]
-                HStack(spacing: 0) {
-                  if msg.isUser {
-                    MessageFooterDupe(msg: prevMsg, hoveredMessageID: $hoveredMessageID)
-                    IconButtonDupe(msg: msg, hoveredMessageID: $hoveredMessageID)
-                  } else {
-                    IconButtonDupe(msg: msg, hoveredMessageID: $hoveredMessageID)
-                    MessageFooterDupe(msg: prevMsg, hoveredMessageID: $hoveredMessageID)
-                  }
+            } else if index == session.messages.count - 1 {
+              let prevMsg = session.messages[index - 1]
+              HStack(spacing: 0) {
+                if msg.isUser {
+                  MessageFooterDupe(msg: prevMsg, hoveredMessageID: $hoveredMessageID)
+                  IconButtonDupe(msg: msg, hoveredMessageID: $hoveredMessageID)
+                } else {
+                  IconButtonDupe(msg: msg, hoveredMessageID: $hoveredMessageID)
+                  MessageFooterDupe(msg: prevMsg, hoveredMessageID: $hoveredMessageID)
                 }
-                ChatMessage(msg: msg)
-                  .onHover { hover in
-                    hoveredMessageID = hover ? msg.id : nil
-                  }
               }
+              ChatMessage(msg: msg)
+                .onHover { hover in
+                  hoveredMessageID = hover ? msg.id : nil
+                }
+              MessageFooterDupe(msg: msg, hoveredMessageID: $hoveredMessageID)
+            } else {
+              let prevMsg = session.messages[index - 1]
+              HStack(spacing: 0) {
+                if msg.isUser {
+                  MessageFooterDupe(msg: prevMsg, hoveredMessageID: $hoveredMessageID)
+                  IconButtonDupe(msg: msg, hoveredMessageID: $hoveredMessageID)
+                } else {
+                  IconButtonDupe(msg: msg, hoveredMessageID: $hoveredMessageID)
+                  MessageFooterDupe(msg: prevMsg, hoveredMessageID: $hoveredMessageID)
+                }
+              }
+              ChatMessage(msg: msg)
+                .onHover { hover in
+                  hoveredMessageID = hover ? msg.id : nil
+                }
             }
           }
-          IncomingMessage(chatSessionContext: session)
-            .padding(.bottom, 28)
         }
-        .padding(20)
-        .id(session)
-        .onAppear {
-          loadSession()
-        }
+        IncomingMessage(chatSessionContext: session)
+          .padding(.bottom, 28)
+      }
+      .padding(20)
+      .onAppear {
+        loadSession()
       }
     }
   }
@@ -153,7 +126,7 @@ struct MessageFooterDupe: View {
 }
 
 #Preview {
-  ChatView(isOverlay: true)
+  ChatContainer(isOverlay: true)
     .environmentObject(AppContexts.ctx)
 }
 
@@ -174,7 +147,7 @@ struct ChatView_Previews: PreviewProvider {
     @State private var index: Int = 0
 
     var body: some View {
-      ChatView(isOverlay: true)
+      ChatContainer(isOverlay: true)
         .onAppear {
           chatSessionContext.startIncomingMessage()
           index = 0

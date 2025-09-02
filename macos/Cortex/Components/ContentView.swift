@@ -24,7 +24,7 @@ struct ContentView: View {
       VStack {
         Spacer()
         
-        ChatView(isOverlay: false)
+        ChatContainer(isOverlay: false)
         PromptBox(isOverlay: false)
         
       }

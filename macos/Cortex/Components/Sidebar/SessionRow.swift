@@ -8,8 +8,11 @@
 import SwiftUI
 
 struct SessionRow: View {
+  @EnvironmentObject var ctx: AppContexts
   let title: String
   let date: Date
+  let id: UUID
+  @State private var isHovering = false
   
   var body: some View {
     HStack {
@@ -30,7 +33,13 @@ struct SessionRow: View {
     .padding(.horizontal, 10)
     .background(
       RoundedRectangle(cornerRadius: 8)
-        .fill(Color.gray.opacity(0.1))
+        .fill(isHovering ? Color.gray.opacity(0.15) : Color.gray.opacity(0.1))
+        .animation(.easeInOut(duration: 0.1), value: isHovering)
     )
+    .onHover { hovering in isHovering = hovering }
+    .onTapGesture {
+      ctx.chatContext.windowChatID = id
+      print(id)
+    }
   }
 }

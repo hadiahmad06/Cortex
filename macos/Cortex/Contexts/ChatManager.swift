@@ -11,7 +11,7 @@ import SwiftData
 
 @MainActor
 class ChatManager: ObservableObject {
-  @Environment(\.modelContext) private var context: ModelContext
+  private let context: ModelContext = PersistenceController.shared.container.mainContext
   @Published private var sessions: [UUID: ChatSession] = [:] {
     didSet {
       saveSessions()

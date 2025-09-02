@@ -113,7 +113,7 @@ class ChatSession: ObservableObject {
     id: UUID,
     createdAt: Date = Date(),
     updatedAt: Date = Date(),
-    title: String?,
+    title: String? = nil,
     aliases: [String] = [],
     messages: [Message] = []
   ) {

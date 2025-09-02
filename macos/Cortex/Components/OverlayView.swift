@@ -24,7 +24,7 @@ struct OverlayView: View {
 
         VStack {
           Spacer()
-          ChatView(isOverlay: true)
+          ChatContainer(isOverlay: true)
           PromptBox(isOverlay: true)
         }
         .overlay(
