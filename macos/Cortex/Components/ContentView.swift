@@ -59,7 +59,7 @@ struct ContentView: View {
         .padding(10)
       }
       ToolbarItem(placement: .principal) {
-        Text("temporary chat name")
+        TitleArea(ctx.chatContext.session(for: ctx.chatContext.windowChatID))
       }
 
       ToolbarItem(placement: .automatic) {

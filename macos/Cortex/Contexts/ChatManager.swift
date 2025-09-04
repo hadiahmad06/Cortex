@@ -11,6 +11,15 @@ import SwiftData
 
 @MainActor
 class ChatManager: ObservableObject {
+  static let fallbackHeaderTexts: [String] = [
+    "New Chat",
+    "Fresh Convo",
+    "Still Thinking...",
+    "Thinking...",
+    "Untitled Chat",
+    "Response Incoming..."
+  ]
+  
   private let context: ModelContext = PersistenceController.shared.container.mainContext
   @Published private var sessions: [UUID: ChatSession] = [:] {
     didSet {
@@ -18,8 +27,8 @@ class ChatManager: ObservableObject {
     }
   }
 
-  @Published var overlayChatID: UUID? = UUID()
-  @Published var windowChatID: UUID? = UUID()
+  @Published var overlayChatID: UUID? = nil
+  @Published var windowChatID: UUID? = nil
 
   // TODO: lazy load sessions
   init() {
@@ -35,12 +44,16 @@ class ChatManager: ObservableObject {
       } else {
         latestTimestamp = Date()
       }
-      return ("temp name", latestTimestamp, session.id)
+      let headerText: String =
+      session.title.isEmpty
+      ? (session.aliases.last ?? ChatManager.fallbackHeaderTexts.randomElement()!)
+      : session.title
+      return (headerText, latestTimestamp, session.id)
     }
   }
   
   func session(for chatID: UUID? = nil) -> ChatSession {
-    let resolvedID = chatID ?? UUID()
+    let resolvedID = chatID ?? ChatSession.draftID
     if let existingSession = sessions[resolvedID] {
       return existingSession
     } else {

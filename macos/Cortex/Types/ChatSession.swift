@@ -9,6 +9,7 @@ import SwiftUI
 import Combine
 
 class ChatSession: ObservableObject {
+  static let draftID: UUID = UUID(uuidString: "00000000-0000-0000-0000-000000000000")!
   
   // Local UUID (will sync later)
   @Published var id: UUID
@@ -22,8 +23,8 @@ class ChatSession: ObservableObject {
     }
   }
   
-  var title: String?
-  var aliases: [String]
+  @Published var title: String
+  @Published var aliases: [String]
   
   // All messages, including finalized ones
   // TODO: update on message changes rather than just array changes.
@@ -41,6 +42,11 @@ class ChatSession: ObservableObject {
   // flag indicating if a message is currently streaming
   @Published var isIncoming: Bool = false
 
+  // checks if
+  var isDraft: Bool {
+    id == ChatSession.draftID
+  }
+  
   // Start streaming a new message
   func startIncomingMessage() {
     incomingMessageText = ""
@@ -113,8 +119,11 @@ class ChatSession: ObservableObject {
     id: UUID,
     createdAt: Date = Date(),
     updatedAt: Date = Date(),
-    title: String? = nil,
-    aliases: [String] = [],
+    title: String = "",
+    aliases: [String] = ["Neural Sage",
+                         "Data Whisperer",
+                         "Cortex Pilot",
+                         "Pattern Weaver"],
     messages: [Message] = []
   ) {
     self.id = id

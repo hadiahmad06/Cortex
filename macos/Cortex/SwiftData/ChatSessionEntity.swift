@@ -14,7 +14,7 @@ public class ChatSessionEntity {
   @Attribute(.unique) public var id: UUID = UUID()
   var createdAt: Date = Date()
   var updatedAt: Date = Date()
-  var title: String?
+  var title: String = ""
   var aliases: [String] = []
 
   // one-to-many
