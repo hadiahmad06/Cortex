@@ -27,8 +27,8 @@ class ChatManager: ObservableObject {
     }
   }
 
-  @Published var overlayChatID: UUID? = nil
-  @Published var windowChatID: UUID? = nil
+  @Published var overlayChatID: UUID = ChatSession.draftID
+  @Published var windowChatID: UUID = ChatSession.draftID
 
   // TODO: lazy load sessions
   init() {
@@ -37,7 +37,8 @@ class ChatManager: ObservableObject {
 
   func getChatSessions() -> [(String, Date, UUID)] {
     // For each session, return a tuple: (empty string, latest timestamp, UUID)
-    return sessions.values.map { session in
+    return sessions.values.compactMap { session in
+      guard !session.isDraft else { return nil }
       let latestTimestamp: Date
       if let lastMessage = session.messages.last {
         latestTimestamp = lastMessage.timestamp
@@ -52,8 +53,8 @@ class ChatManager: ObservableObject {
     }
   }
   
-  func session(for chatID: UUID? = nil) -> ChatSession {
-    let resolvedID = chatID ?? ChatSession.draftID
+  func session(for chatID: UUID = ChatSession.draftID) -> ChatSession {
+    let resolvedID = chatID
     if let existingSession = sessions[resolvedID] {
       return existingSession
     } else {
@@ -110,3 +111,23 @@ extension ChatManager {
     }
   }
 }
+
+extension ChatManager {
+  func clearAllSessions() {
+    sessions.removeAll()
+     overlayChatID = ChatSession.draftID
+     windowChatID = ChatSession.draftID
+    do {
+      let fetchDescriptor = FetchDescriptor<ChatSessionEntity>()
+      let entities = try self.context.fetch(fetchDescriptor)
+      for entity in entities {
+        self.context.delete(entity)
+      }
+      try self.context.save()
+    } catch {
+      print("Failed to clear stored sessions: \(error)")
+    }
+  }
+}
+
+

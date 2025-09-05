@@ -48,7 +48,7 @@ struct ContentView: View {
           )
           IconButton(
             systemName: "square.and.pencil",
-            action: OverlayWindowController.shared.toggle,
+            action: {ctx.chatContext.windowChatID = ChatSession.draftID},
             isToggled: .constant(false),
             tooltip: "Create new chat (⌘N)",
             help: "Start a new chat",
@@ -64,18 +64,21 @@ struct ContentView: View {
 
       ToolbarItem(placement: .automatic) {
         HStack(spacing: 4) {
-          IconButton(
-            systemName: "square.and.arrow.up",
-            action: OverlayWindowController.shared.toggle,
-            isToggled: .constant(false),
-            tooltip: "Open in overlay (⌘O)",
-            help: "Open chat in overlay window",
-            size: 32,
-            fontSize: 16
-          )
+//          IconButton(
+//            systemName: "square.and.arrow.up",
+//            action: OverlayWindowController.shared.toggle,
+//            isToggled: .constant(false),
+//            tooltip: "Open in overlay (⌘O)",
+//            help: "Open chat in overlay window",
+//            size: 32,
+//            fontSize: 16
+//          )
           IconButton(
             systemName: "rectangle.on.rectangle",
-            action: OverlayWindowController.shared.toggle,
+            action: {
+              OverlayWindowController.shared.toggle()
+              ctx.chatContext.overlayChatID = ctx.chatContext.windowChatID
+            },
             isToggled: .constant(false),
             tooltip: "Open in overlay (⌘O)",
             help: "Open chat in overlay window",

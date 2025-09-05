@@ -18,17 +18,15 @@ struct ChatContainer: View {
     self._chatManager = ObservedObject(wrappedValue: AppContexts.ctx.chatContext)
   }
   
-  var session: ChatSession? {
-    guard let id = isOverlay ? chatManager.overlayChatID : chatManager.windowChatID else {
-        return nil
-    }
+  var session: ChatSession {
+    let id = isOverlay ? chatManager.overlayChatID : chatManager.windowChatID
     return chatManager.session(for: id)
   }
   
   
   var body: some View {
     ZStack {
-      if let session = session {
+      if !session.isDraft {
         ChatView(session: session)
       } else {
         if (!isOverlay) {

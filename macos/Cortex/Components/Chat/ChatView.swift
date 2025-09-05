@@ -138,7 +138,7 @@ struct ChatView_Previews: PreviewProvider {
     private var chatSessionContext: ChatSession
     
     init() {
-      chatSessionContext = AppContexts.ctx.chatContext.session(for: nil)
+      chatSessionContext = AppContexts.ctx.chatContext.session()
       AppContexts.ctx.chatContext.overlayChatID = chatSessionContext.id
     }
     

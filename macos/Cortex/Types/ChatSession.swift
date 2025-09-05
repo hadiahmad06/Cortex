@@ -76,6 +76,7 @@ class ChatSession: ObservableObject {
     messages.append(message)
   }
   
+  // replaces prompt id with backend's id, and adds incoming message.
   func onComplete(localID: UUID, promptID: UUID, responseID: UUID) {
     let msg = messages.first(where: { $0.id == localID })
     msg?.backendID = promptID
@@ -84,34 +85,51 @@ class ChatSession: ObservableObject {
 
   // TODO: bug where response fails to render MessageFooter and IconButton until another change is made.
   func sendCurrentPrompt() {
-    if(!isIncoming && prompt != "") {
-      startIncomingMessage()
-      let msg = Message(
-        id: UUID(),
-        text: self.prompt,
-        isUser: true,
-        isPinned: false,
-        timestamp: Date(),
-        status: .pending
-      )
-      messages.append(msg)
-      if messages.isEmpty {
-        Task { @MainActor in
-            AppContexts.ctx.chatContext.updateUUID(tempID: self.id, id: id)
-        }
+    guard !isIncoming && !prompt.isEmpty else { return }
+    
+    if self.isDraft {
+      Task { @MainActor in
+        // Promote draft session
+        let newID = ChatAPI.initializeChatSession()
+        AppContexts.ctx.chatContext.updateUUID(tempID: self.id, id: newID)
+        self.id = newID
+        
+        // Now append and send
+        appendAndSendPrompt()
       }
-      let curriedOnComplete: (UUID, UUID) -> Void = { [weak self] promptID, responseID in
-          self?.onComplete(localID: msg.id, promptID: promptID, responseID: responseID)
-      }
-      ChatAPI.sendPrompt(
-        self.prompt,
-        sessionID: self.id,
-        onChunk: addIncomingChunk,
-        onComplete: curriedOnComplete,
-        onError: {_ in } // will add later
-      )
-      self.prompt = ""
+    } else {
+      appendAndSendPrompt()
     }
+  }
+
+  // Extracted helper
+  private func appendAndSendPrompt() {
+    startIncomingMessage()
+    
+    let msg = Message(
+      id: UUID(),
+      text: self.prompt,
+      isUser: true,
+      isPinned: false,
+      timestamp: Date(),
+      status: .pending
+    )
+    
+    messages.append(msg)
+    
+    let curriedOnComplete: (UUID, UUID) -> Void = { [weak self] promptID, responseID in
+      self?.onComplete(localID: msg.id, promptID: promptID, responseID: responseID)
+    }
+    
+    ChatAPI.sendPrompt(
+      self.prompt,
+      sessionID: self.id,
+      onChunk: addIncomingChunk,
+      onComplete: curriedOnComplete,
+      onError: { _ in }
+    )
+    
+    self.prompt = ""
   }
   
   // Explicit initializer to set id manually
