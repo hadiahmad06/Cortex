@@ -13,8 +13,10 @@ struct SessionRow: View {
   let date: Date
   let id: UUID
   @State private var isHovering = false
+  @ObservedObject var manager: ChatManager
   
   var body: some View {
+    let isSelected = manager.windowChatID == id
     HStack {
       VStack(alignment: .leading, spacing: 2) {
         Text(title)
@@ -33,7 +35,7 @@ struct SessionRow: View {
     .padding(.horizontal, 10)
     .background(
       RoundedRectangle(cornerRadius: 8)
-        .fill(isHovering ? Color.gray.opacity(0.15) : Color.gray.opacity(0.1))
+        .fill(isSelected ? Color.gray.opacity(0.2) : (isHovering ? Color.gray.opacity(0.17) : Color.gray.opacity(0.1)))
         .animation(.easeInOut(duration: 0.1), value: isHovering)
     )
     .onHover { hovering in isHovering = hovering }

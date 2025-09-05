@@ -26,6 +26,7 @@ struct ChatContainer: View {
   
   var body: some View {
     ZStack {
+//      Text(session.id.uuidString)
       if !session.isDraft {
         ChatView(session: session)
       } else {

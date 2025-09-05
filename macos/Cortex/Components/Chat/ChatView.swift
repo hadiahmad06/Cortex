@@ -15,7 +15,7 @@ struct ChatView: View {
   @ObservedObject var session: ChatSession
   
   private func loadSession() {
-    session.messages = ChatAPI.fetchMessages(for: session.id)
+//    session.messages = ChatAPI.fetchMessages(for: session.id)
     print(session.messages)
   }
   

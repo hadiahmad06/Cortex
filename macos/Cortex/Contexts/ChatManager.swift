@@ -21,11 +21,14 @@ class ChatManager: ObservableObject {
   ]
   
   private let context: ModelContext = PersistenceController.shared.container.mainContext
+  
   @Published private var sessions: [UUID: ChatSession] = [:] {
     didSet {
       saveSessions()
+      updateSummaries()
     }
   }
+  @Published private(set) var sessionSummaries: [(String, Date, UUID)] = []
 
   @Published var overlayChatID: UUID = ChatSession.draftID
   @Published var windowChatID: UUID = ChatSession.draftID
@@ -35,20 +38,13 @@ class ChatManager: ObservableObject {
     loadSessions()
   }
 
-  func getChatSessions() -> [(String, Date, UUID)] {
-    // For each session, return a tuple: (empty string, latest timestamp, UUID)
-    return sessions.values.compactMap { session in
+  private func updateSummaries() {
+    sessionSummaries = sessions.values.compactMap { session in
       guard !session.isDraft else { return nil }
-      let latestTimestamp: Date
-      if let lastMessage = session.messages.last {
-        latestTimestamp = lastMessage.timestamp
-      } else {
-        latestTimestamp = Date()
-      }
-      let headerText: String =
-      session.title.isEmpty
-      ? (session.aliases.last ?? ChatManager.fallbackHeaderTexts.randomElement()!)
-      : session.title
+      let latestTimestamp = session.messages.last?.timestamp ?? Date()
+      let headerText = session.title.isEmpty
+        ? (session.aliases.last ?? ChatManager.fallbackHeaderTexts.randomElement()!)
+        : session.title
       return (headerText, latestTimestamp, session.id)
     }
   }

@@ -8,6 +8,7 @@
 import SwiftUI
 
 struct SidebarView: View {
+  @EnvironmentObject var ctx: AppContexts
   @State var searchText: String = ""
   @Binding var isSidebarOpen: Bool
   
@@ -15,7 +16,7 @@ struct SidebarView: View {
   private let minSidebarWidth: CGFloat = 200
   private let maxSidebarWidth: CGFloat = 600
   
-  var sessions: [(String, Date, UUID)]
+  @ObservedObject var manager: ChatManager
 
   var body: some View {
     VStack {
@@ -25,9 +26,14 @@ struct SidebarView: View {
 
       ScrollView {
         LazyVStack(alignment: .leading, spacing: 4) {
-          let sortedSessions = sessions.sorted { $0.1 > $1.1 }
+          let sortedSessions = manager.sessionSummaries.sorted { $0.1 > $1.1 }
           ForEach(sortedSessions, id: \.2) { (title, date, id) in
-            SessionRow(title: title, date: date, id: id)
+            SessionRow(
+              title: title,
+              date: date,
+              id: id,
+              manager: ctx.chatContext
+            )
           }
         }
       }

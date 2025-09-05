@@ -13,12 +13,11 @@ struct ContentView: View {
   @EnvironmentObject var ctx: AppContexts
   
   var body: some View {
-    let sessions = ctx.chatContext.getChatSessions()
     HStack(spacing: 0) {
       if isSidebarOpen {
         SidebarView(
           isSidebarOpen: $isSidebarOpen,
-          sessions: sessions
+          manager: ctx.chatContext
         )
       }
       VStack {
