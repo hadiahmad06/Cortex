@@ -24,7 +24,7 @@ struct ContentView: View {
         Spacer()
         
         ChatContainer(isOverlay: false)
-        PromptBox(isOverlay: false)
+//        PromptBox(isOverlay: false)
         
       }
     }

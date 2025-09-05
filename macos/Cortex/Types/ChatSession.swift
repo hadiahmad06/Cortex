@@ -138,10 +138,10 @@ class ChatSession: ObservableObject {
     createdAt: Date = Date(),
     updatedAt: Date = Date(),
     title: String = "",
-    aliases: [String] = ["Neural Sage",
+    aliases: [String] = [/*"Neural Sage",
                          "Data Whisperer",
                          "Cortex Pilot",
-                         "Pattern Weaver"],
+                         "Pattern Weaver"*/],
     messages: [Message] = []
   ) {
     self.id = id

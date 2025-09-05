@@ -35,7 +35,8 @@ class ChatManager: ObservableObject {
 
   // TODO: lazy load sessions
   init() {
-    loadSessions()
+//    self.clearAllSessions()
+    self.loadSessions()
   }
 
   private func updateSummaries() {

@@ -10,30 +10,21 @@ import SwiftUI
 struct PromptBox: View {
   @EnvironmentObject var ctx: AppContexts
   
-  var isOverlay: Bool
   @State private var isHovered: Bool = false
   @State private var isFirstResponder: Bool = false // might change later
   @State private var measuredTextHeight: CGFloat = 30
   
-  @ObservedObject private var session: ChatSession
+  @ObservedObject var session: ChatSession
   
-  init(isOverlay: Bool) {
-    self.isOverlay = isOverlay
-    let manager = AppContexts.ctx.chatContext
-    let resolvedSession = isOverlay
-      ? manager.session(for: manager.overlayChatID)
-      : manager.session(for: manager.windowChatID)
-    _session = ObservedObject(initialValue: resolvedSession)
+  var isInputEmpty: Bool {
+    session.prompt.isEmpty
   }
   
   var body: some View {
-
-    let isInputEmpty = session.prompt.isEmpty
-    
     VStack(alignment: .trailing, spacing: 8) {
       ZStack(alignment: .topLeading) {
         if isInputEmpty {
-          Text("Type a prompt…")
+          Text("Type a prompt…"/* + session.id.uuidString*/)
             .font(.system(size: 12))
             .foregroundColor(.white.opacity(0.4))
         }

@@ -23,9 +23,8 @@ struct ChatContainer: View {
     return chatManager.session(for: id)
   }
   
-  
   var body: some View {
-    ZStack {
+    VStack {
 //      Text(session.id.uuidString)
       if !session.isDraft {
         ChatView(session: session)
@@ -45,7 +44,8 @@ struct ChatContainer: View {
           .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .center)
         }
       }
+      PromptBox(session: session)
     }
-    .id(chatManager.windowChatID)
+    .id(isOverlay ? chatManager.overlayChatID : chatManager.windowChatID)
   }
 }
