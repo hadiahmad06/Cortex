@@ -34,59 +34,10 @@ struct ContentView: View {
       window.titlebarAppearsTransparent = true
     }
     .toolbar {
-      ToolbarItem(placement: .navigation) {
-        HStack(spacing: 4) {
-          IconButton(
-            systemName: "sidebar.left",
-            action: {isSidebarOpen.toggle()},
-            isToggled: .constant(false),
-            tooltip: "Toggle Sidebar (⌘S)",
-            help: "Toggle the sidebar",
-            size: 32,
-            fontSize: 16
-          )
-          IconButton(
-            systemName: "square.and.pencil",
-            action: {ctx.chatContext.windowChatID = ChatSession.draftID},
-            isToggled: .constant(false),
-            tooltip: "Create new chat (⌘N)",
-            help: "Start a new chat",
-            size: 32,
-            fontSize: 16
-          )
-        }
-        .padding(10)
-      }
-      ToolbarItem(placement: .principal) {
-        TitleArea(ctx.chatContext.session(for: ctx.chatContext.windowChatID))
-      }
-
-      ToolbarItem(placement: .automatic) {
-        HStack(spacing: 4) {
-//          IconButton(
-//            systemName: "square.and.arrow.up",
-//            action: OverlayWindowController.shared.toggle,
-//            isToggled: .constant(false),
-//            tooltip: "Open in overlay (⌘O)",
-//            help: "Open chat in overlay window",
-//            size: 32,
-//            fontSize: 16
-//          )
-          IconButton(
-            systemName: "rectangle.on.rectangle",
-            action: {
-              OverlayWindowController.shared.toggle()
-              ctx.chatContext.overlayChatID = ctx.chatContext.windowChatID
-            },
-            isToggled: .constant(false),
-            tooltip: "Open in overlay (⌘O)",
-            help: "Open chat in overlay window",
-            size: 32,
-            fontSize: 16
-          )
-        }
-        .padding(10)
-      }
+      ToolbarView(
+        manager: ctx.chatContext,
+        isSidebarOpen: $isSidebarOpen
+      )
     }
   }
 }
