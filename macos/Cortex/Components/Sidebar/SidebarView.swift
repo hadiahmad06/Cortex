@@ -9,7 +9,6 @@ import SwiftUI
 
 struct SidebarView: View {
   @EnvironmentObject var ctx: AppContexts
-  @State var searchText: String = ""
   @Binding var isSidebarOpen: Bool
   
   @State var sidebarWidth: CGFloat = 350
@@ -17,29 +16,31 @@ struct SidebarView: View {
   private let maxSidebarWidth: CGFloat = 600
   
   @ObservedObject var manager: ChatManager
+  
+  @State var selectedTab: String = "history"
+  
+  let tabs = [
+    ToggleOption(id: "history", label: "History"),
+    ToggleOption(id: "settings", label: "Settings"),
+  ]
 
   var body: some View {
     VStack {
-      TextField("Search…", text: $searchText)
-        .textFieldStyle(.roundedBorder)
-        .padding(.top, 6)
-
-      ScrollView {
-        LazyVStack(alignment: .leading, spacing: 4) {
-          let sortedSessions = manager.sessionSummaries.sorted { $0.1 > $1.1 }
-          ForEach(sortedSessions, id: \.2) { (title, date, id) in
-            SessionRow(
-              title: title,
-              date: date,
-              id: id,
-              manager: ctx.chatContext
-            )
-          }
+      if(selectedTab == "history") {
+        HistoryView(manager: manager)
+      } else {
+        VStack {
+          
         }
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
       }
-      .frame(maxWidth: .infinity, maxHeight: .infinity)
 
-      SettingsButton()
+      MultiToggle(
+        options: tabs,
+        selected: $selectedTab,
+        accentColor: Color.accentColor.opacity(0.75)
+      )
+        .padding(.bottom, 8)
     }
     .padding(.horizontal, 10)
     .background(Color.black.opacity(0.10))
