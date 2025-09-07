@@ -12,20 +12,18 @@ struct OverlayView: View {
   static let id = "CortexOverlay"
   @Environment(\.dismiss) private var dismiss
   @State private var isHovered: Bool = false
-  // if ^ is changed, must change `totalHeight` in AutoGrowingTextView.swift
-
+  @State private var isFirstResponder: Bool = true
 
   var body: some View {
     ZStack {
       ZStack {
         RoundedRectangle(cornerRadius: 20, style: .continuous)
           .fill(.ultraThinMaterial)
-          .overlay(Color.black.opacity(0.25))
+          .overlay(Color.black.opacity(0.1))
 
         VStack {
           Spacer()
           ChatContainer(isOverlay: true)
-//          PromptBox(isOverlay: true)
         }
         .overlay(
           Group {
@@ -68,18 +66,23 @@ struct OverlayView: View {
         )
       }
       .cornerRadius(24)
+      .overlay(RoundedRectangle(cornerRadius: 24).stroke(Color.black.opacity(0.5), lineWidth: 1.5))
+      .overlay(RoundedRectangle(cornerRadius: 24).stroke(Color.gray.opacity(0.4), lineWidth: 1.25))
+      .animation(.easeInOut(duration: 0.2), value: isHovered)
 //      .onAppear {
 //        NSApp.activate(ignoringOtherApps: true)
 //        isFirstResponder = true
 //      }
-      .animation(.easeInOut(duration: 0.2), value: isHovered)
     }
     .onHover { hovering in
-//      print("Hover state: \(hovering)")
       isHovered = hovering
     }
     .onExitCommand {
       OverlayWindowController.shared.toggle()
+    }
+    .onTapGesture {
+      NSApp.activate(ignoringOtherApps: true)
+      isFirstResponder = true
     }
   }
 }
@@ -89,6 +92,6 @@ struct OverlayView_Previews: PreviewProvider {
     OverlayView()
       .previewLayout(.sizeThatFits)
       .environmentObject(AppContexts.ctx)
-//      .padding()
+      .padding()
   }
 }

@@ -9,11 +9,16 @@ import AppKit
 import SwiftUI
 
 @MainActor
-class OverlayWindowController {
+class OverlayWindowController: NSObject, NSWindowDelegate {
   static let shared = OverlayWindowController()
   private var panel: NSPanel?
 
 //  var contexts: AppContexts
+  
+  private let minWidth: CGFloat = 350
+  private let maxWidth: CGFloat = 600
+  private let minHeight: CGFloat = 300
+  private let maxHeight: CGFloat = 1000
   
   func toggle() {
     if panel == nil {
@@ -38,7 +43,7 @@ class OverlayWindowController {
 
     let panel = NSPanel(
       contentRect: NSRect(x: x, y: y, width: width, height: height),
-      styleMask: [.nonactivatingPanel, .titled],
+      styleMask: [.nonactivatingPanel, .resizable],
       backing: .buffered,
       defer: false
     )
@@ -54,14 +59,25 @@ class OverlayWindowController {
     panel.titleVisibility = .hidden
     panel.titlebarAppearsTransparent = true
     panel.isMovableByWindowBackground = true
-    panel.becomesKeyOnlyIfNeeded = true
+    panel.becomesKeyOnlyIfNeeded = false
+    panel.makeKeyAndOrderFront(nil)
+    panel.minSize = NSSize(width: minWidth, height: minHeight)
+    panel.maxSize = NSSize(width: maxWidth, height: maxHeight)
+    panel.delegate = self
 
     let hosting = NSHostingView(
-        rootView: OverlayView()
-          .environmentObject(AppContexts.ctx)
+      rootView: OverlayView()
+        .background(Color.clear.contentShape(Rectangle()))
+        .environmentObject(AppContexts.ctx)
     )
     panel.contentView = hosting
 
     self.panel = panel
+  }
+
+  func windowWillResize(_ sender: NSWindow, to frameSize: NSSize) -> NSSize {
+    let width = min(max(frameSize.width, minWidth), maxWidth)   // clamp width
+    let height = min(max(frameSize.height, minHeight), maxHeight) // clamp height
+    return NSSize(width: width, height: height)
   }
 }
