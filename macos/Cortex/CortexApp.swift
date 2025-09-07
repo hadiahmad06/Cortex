@@ -24,6 +24,7 @@ class AppContexts: ObservableObject {
   
 //  @Published var promptContext: PromptContext = PromptContext()
   @Published var chatContext: ChatManager = ChatManager()
+  @Published var settings: SettingsManager = SettingsManager()
   
   private init() {}
 }

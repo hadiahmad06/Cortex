@@ -15,10 +15,7 @@ struct ContentView: View {
   var body: some View {
     HStack(spacing: 0) {
       if isSidebarOpen {
-        SidebarView(
-          isSidebarOpen: $isSidebarOpen,
-          manager: ctx.chatContext
-        )
+        SidebarView(isSidebarOpen: $isSidebarOpen)
       }
       VStack {
         Spacer()

@@ -10,20 +10,22 @@
 
 import SwiftUI
 
-struct ToggleOption: Identifiable, Hashable {
-  let id: String
+struct ToggleOption<ID: Hashable>: Identifiable, Hashable {
+  let id: ID
   let label: String
   var disabled: Bool = false
 }
 
-struct MultiToggle: View {
-  let options: [ToggleOption]
-  @Binding var selected: String
+struct MultiToggle<ID: Hashable>: View {
+  let options: [ToggleOption<ID>]
+  @Binding var selected: ID
   var accentColor: Color = Color.blue
-
+  var fontSize: CGFloat = 16
+  var optionHeight: CGFloat = 30
+  var optionWidth: CGFloat? = nil
+  var padding: CGFloat = 4
+  
   @Namespace private var animation
-  private let padding: CGFloat = 4
-  private let optionHeight: CGFloat = 30
   private let cornerRadius: CGFloat = 6
 
   @State private var shakeOffset: CGFloat = 0
@@ -43,11 +45,12 @@ struct MultiToggle: View {
           // Text
           Text(option.label)
             .fontWeight(.medium)
-            .font(.system(size: 16))
+            .font(.system(size: fontSize))
             .foregroundColor(selected == option.id ? .white : .primary.opacity(option.disabled ? 0.4 : 1))
             .frame(maxWidth: .infinity, maxHeight: .infinity)
         }
-        .frame(height: optionHeight)
+        // Apply height only if optionWidth is nil
+        .frame(width: optionWidth, height: optionWidth == nil ? optionHeight : nil)
         .contentShape(Rectangle()) // now the whole option is tappable
         .onTapGesture {
           if !option.disabled {
@@ -61,6 +64,7 @@ struct MultiToggle: View {
       }
     }
     .padding(padding)
+//    .frame(maxWidth: width ?? .infinity, maxHeight: .infinity)
     .frame(height: optionHeight + padding * 2)
     .background(
         RoundedRectangle(cornerRadius: cornerRadius)

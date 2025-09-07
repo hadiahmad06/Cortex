@@ -15,9 +15,7 @@ struct SidebarView: View {
   private let minSidebarWidth: CGFloat = 200
   private let maxSidebarWidth: CGFloat = 600
   
-  @ObservedObject var manager: ChatManager
-  
-  @State var selectedTab: String = "history"
+  @State var selectedTab: String = "settings"
   
   let tabs = [
     ToggleOption(id: "history", label: "History"),
@@ -27,20 +25,21 @@ struct SidebarView: View {
   var body: some View {
     VStack {
       if(selectedTab == "history") {
-        HistoryView(manager: manager)
+        HistoryView(manager: ctx.chatContext)
       } else {
-        VStack {
-          
-        }
-        .frame(maxWidth: .infinity, maxHeight: .infinity)
+        SettingsView(manager: ctx.settings)
       }
 
       MultiToggle(
         options: tabs,
         selected: $selectedTab,
-        accentColor: Color.accentColor.opacity(0.75)
+        accentColor: Color.accentColor.opacity(0.75),
+        fontSize: 14,
+        optionHeight: 20,
+        optionWidth: 70
       )
-        .padding(.bottom, 8)
+      .padding(.horizontal, 30)
+      .padding(.vertical, 12)
     }
     .padding(.horizontal, 10)
     .background(Color.black.opacity(0.10))
