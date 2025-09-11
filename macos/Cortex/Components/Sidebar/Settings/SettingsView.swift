@@ -19,7 +19,7 @@ struct SettingsView: View {
           SettingsSection(title: "Session Timeout") {
             SettingsRow(title: "Reset to New Chat", pv: 5) {
               HStack {
-                Toggle("", isOn: $manager.sessionTimeout)
+                Toggle("", isOn: $manager.settings.sessionTimeout)
                   .labelsHidden()
                   .toggleStyle(SwitchToggleStyle())
               }
@@ -28,8 +28,8 @@ struct SettingsView: View {
               HStack {
                 MultiToggle(
                   options: SettingsDefaults.timeoutOptions,
-                  selected: $manager.sessionTimeoutMinutes,
-                  accentColor: Color.accentColor.opacity(manager.sessionTimeout ? 0.75 : 0.4),
+                  selected: $manager.settings.sessionTimeoutMinutes,
+                  accentColor: Color.accentColor.opacity(manager.settings.sessionTimeout ? 0.75 : 0.4),
                   fontSize: 12,
                   optionHeight: 20,
                   optionWidth: 30,
@@ -48,7 +48,7 @@ struct SettingsView: View {
               
               APIKeyTextField(
                 placeholder: "OpenRouter API Key",
-                apiKey: $manager.openrouter_api_key
+                apiKey: $manager.settings.openrouter_api_key
               )
             }
 //            SettingsRow(title: "Appearance")

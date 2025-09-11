@@ -15,7 +15,7 @@ struct SidebarView: View {
   private let minSidebarWidth: CGFloat = 200
   private let maxSidebarWidth: CGFloat = 600
   
-  @State var selectedTab: String = "settings"
+  @State var selectedTab: String = "history"
   
   let tabs = [
     ToggleOption(id: "history", label: "History"),

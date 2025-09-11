@@ -6,43 +6,75 @@
 //
 
 import SwiftUI
+import Combine
 
+// MARK: - Codable Struct for All Settings
+struct AppSettings: Codable {
+    // API Keys
+    var openrouter_api_key: String = ""
+
+    // App Preferences
+    var autoScroll: Bool = false
+    var fontSize: Double = 14
+    var sessionTimeout: Bool = true
+    var sessionTimeoutMinutes: Int = 15
+    var maxTokens: Int = 1000
+    var enableNotifications: Bool = true
+    var notificationSound: Bool = true
+    var badgeCountEnabled: Bool = true
+
+    // Security & Privacy
+    var encryptLocalData: Bool = true
+    var saveSessionHistory: Bool = true
+    var requirePasswordOnLaunch: Bool = false
+
+    // File & Storage
+    var defaultSaveLocation: URL? = nil
+    var autoBackupEnabled: Bool = false
+    var syncWithCloud: Bool = false
+
+    // Experimental / Advanced
+    var enableStreaming: Bool = true
+    var enableDebugLogging: Bool = false
+    var proxyURL: String = ""
+    var retryOnFailure: Bool = true
+}
+
+// MARK: - SettingsManager
 class SettingsManager: ObservableObject {
-  
-  // MARK: API KEYS
-  @Published var openrouter_api_key: String = ""
-  
-  // MARK: APP PREFERENCES
-  @Published var autoScroll: Bool = false
-  @Published var fontSize: Double = 14
-  @Published var sessionTimeout: Bool = true
-  @Published var sessionTimeoutMinutes: Int = 15
-  
-  // TODO: Add AIModel type with Many OpenRouter models.
-  // Also allow custom maybe?? ill figure it out
-  //  @Published var defaultModel: AIMODEL = .gpt4
-  @Published var maxTokens: Int = 1000
-  
-  
-  @Published var enableNotifications: Bool = true
-  @Published var notificationSound: Bool = true
-  @Published var badgeCountEnabled: Bool = true
-  
-  // MARK: - Security & Privacy
-  @Published var encryptLocalData: Bool = true
-  @Published var saveSessionHistory: Bool = true
-  @Published var requirePasswordOnLaunch: Bool = false
-  
-  // MARK: - File & Storage
-  @Published var defaultSaveLocation: URL? = nil
-  @Published var autoBackupEnabled: Bool = false
-  @Published var syncWithCloud: Bool = false
-  
-  // MARK: - Experimental / Advanced
-  @Published var enableStreaming: Bool = true
-  @Published var enableDebugLogging: Bool = false
-  @Published var proxyURL: String = ""
-  @Published var retryOnFailure: Bool = true
-  
-  
+    
+    @Published var settings = AppSettings()
+    
+    private var cancellables = Set<AnyCancellable>()
+    private let key = "app_settings"
+
+    init() {
+      load()
+      observeChanges()
+    }
+    
+    // MARK: - Observe All Changes Using Combine
+    private func observeChanges() {
+      $settings
+        .dropFirst() // ignore initial value
+        .sink { [weak self] _ in
+            self?.save()
+        }
+        .store(in: &cancellables)
+    }
+
+    // MARK: - Persistence
+    private func save() {
+      if let data = try? JSONEncoder().encode(settings) {
+        UserDefaults.standard.set(data, forKey: key)
+      }
+    }
+    
+    private func load() {
+      guard let data = UserDefaults.standard.data(forKey: key),
+          let saved = try? JSONDecoder().decode(AppSettings.self, from: data)
+      else { return }
+      
+      self.settings = saved
+    }
 }
