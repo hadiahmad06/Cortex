@@ -10,8 +10,6 @@ import SwiftUI
 struct ContentView: View {
   @State var isSidebarOpen = true
   
-  @EnvironmentObject var ctx: AppContexts
-  
   var body: some View {
     HStack(spacing: 0) {
       if isSidebarOpen {
@@ -30,15 +28,14 @@ struct ContentView: View {
       window.titlebarAppearsTransparent = true
     }
     .toolbar {
-      ToolbarView(
-        manager: ctx.chatContext,
-        isSidebarOpen: $isSidebarOpen
-      )
+      ToolbarView(isSidebarOpen: $isSidebarOpen)
     }
   }
 }
 
 #Preview {
     ContentView()
-    .environmentObject(AppContexts.ctx)
+      .environmentObject(ChatManager())
+      .environmentObject(SettingsManager())
+      .environmentObject(TutorialManager())
 }

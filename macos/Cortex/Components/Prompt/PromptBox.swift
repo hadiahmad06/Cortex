@@ -8,7 +8,6 @@
 import SwiftUI
 
 struct PromptBox: View {
-  @EnvironmentObject var ctx: AppContexts
   
   @State private var isHovered: Bool = false
   @State private var isFirstResponder: Bool = false // might change later

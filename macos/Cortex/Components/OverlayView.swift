@@ -91,7 +91,9 @@ struct OverlayView_Previews: PreviewProvider {
   static var previews: some View {
     OverlayView()
       .previewLayout(.sizeThatFits)
-      .environmentObject(AppContexts.ctx)
+      .environmentObject(ChatManager())
+      .environmentObject(SettingsManager())
+      .environmentObject(TutorialManager())
       .padding()
   }
 }

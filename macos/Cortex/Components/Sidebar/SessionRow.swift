@@ -8,15 +8,14 @@
 import SwiftUI
 
 struct SessionRow: View {
-  @EnvironmentObject var ctx: AppContexts
+  @EnvironmentObject var chatManager: ChatManager
   let title: String
   let date: Date
   let id: UUID
   @State private var isHovering = false
-  @ObservedObject var manager: ChatManager
   
   var body: some View {
-    let isSelected = manager.windowChatID == id
+    let isSelected = chatManager.windowChatID == id
     HStack {
       VStack(alignment: .leading, spacing: 2) {
         Text(title)
@@ -40,7 +39,7 @@ struct SessionRow: View {
     )
     .onHover { hovering in isHovering = hovering }
     .onTapGesture {
-      ctx.chatContext.windowChatID = id
+      chatManager.windowChatID = id
       print(id)
     }
   }

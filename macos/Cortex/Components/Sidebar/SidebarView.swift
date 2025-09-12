@@ -8,7 +8,7 @@
 import SwiftUI
 
 struct SidebarView: View {
-  @EnvironmentObject var ctx: AppContexts
+//  @EnvironmentObject var chatManager: AppContexts
   @Binding var isSidebarOpen: Bool
   
   @State var sidebarWidth: CGFloat = 350
@@ -25,9 +25,9 @@ struct SidebarView: View {
   var body: some View {
     VStack {
       if(selectedTab == "history") {
-        HistoryView(manager: ctx.chatContext)
+        HistoryView()
       } else {
-        SettingsView(manager: ctx.settings)
+        SettingsView()
       }
 
       MultiToggle(

@@ -8,15 +8,8 @@
 import SwiftUI
 
 struct ChatContainer: View {
-  @EnvironmentObject var ctx: AppContexts
+  @EnvironmentObject var chatManager: ChatManager
   var isOverlay: Bool
-  
-  @ObservedObject var chatManager: ChatManager
-  
-  init(isOverlay: Bool) {
-    self.isOverlay = isOverlay
-    self._chatManager = ObservedObject(wrappedValue: AppContexts.ctx.chatContext)
-  }
   
   var session: ChatSession {
     let id = isOverlay ? chatManager.overlayChatID : chatManager.windowChatID

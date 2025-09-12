@@ -9,7 +9,7 @@ import SwiftUI
 
 struct HistoryView: View {
   @State var searchText: String = ""
-  @ObservedObject var manager: ChatManager
+  @EnvironmentObject var chatManager: ChatManager
   var body: some View {
     TextField("Search…", text: $searchText)
       .textFieldStyle(.roundedBorder)
@@ -17,13 +17,13 @@ struct HistoryView: View {
     
     ScrollView {
       LazyVStack(alignment: .leading, spacing: 4) {
-        let sortedSessions = manager.sessionSummaries.sorted { $0.1 > $1.1 }
+        let sortedSessions = chatManager.sessionSummaries.sorted { $0.1 > $1.1 }
         ForEach(sortedSessions, id: \.2) { (title, date, id) in
           SessionRow(
             title: title,
             date: date,
-            id: id,
-            manager: manager
+            id: id
+//            manager: chatManager
           )
         }
       }

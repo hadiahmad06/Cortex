@@ -8,7 +8,7 @@
 import SwiftUI
 
 struct ToolbarView: ToolbarContent {
-  @ObservedObject var manager: ChatManager
+  @EnvironmentObject var manager: ChatManager
   
   @Binding var isSidebarOpen: Bool
   

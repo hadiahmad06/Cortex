@@ -24,8 +24,9 @@ public class ChatSessionEntity {
 }
 
 extension ChatSessionEntity {
-  func toLocal() -> ChatSession {
+  func toLocal(chatManager: ChatManager) -> ChatSession {
     return ChatSession(
+      chatManager: chatManager,
       id: self.id,
       createdAt: self.createdAt,
       updatedAt: self.updatedAt,

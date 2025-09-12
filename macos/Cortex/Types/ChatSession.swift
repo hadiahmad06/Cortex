@@ -9,6 +9,7 @@ import SwiftUI
 import Combine
 
 class ChatSession: ObservableObject {
+  var chatManager: ChatManager
   static let draftID: UUID = UUID(uuidString: "00000000-0000-0000-0000-000000000000")!
   
   // Local UUID (will sync later)
@@ -18,7 +19,7 @@ class ChatSession: ObservableObject {
   var updatedAt: Date {
     didSet {
       Task { @MainActor in
-        AppContexts.ctx.chatContext.saveSessions()
+        chatManager.saveSessions()
       }
     }
   }
@@ -91,7 +92,7 @@ class ChatSession: ObservableObject {
       Task { @MainActor in
         // Promote draft session
         let newID = ChatAPI.initializeChatSession()
-        AppContexts.ctx.chatContext.updateUUID(tempID: self.id, id: newID)
+        chatManager.updateUUID(tempID: self.id, id: newID)
         self.id = newID
         
         // Now append and send
@@ -134,6 +135,7 @@ class ChatSession: ObservableObject {
   
   // Explicit initializer to set id manually
   init(
+    chatManager: ChatManager,
     id: UUID,
     createdAt: Date = Date(),
     updatedAt: Date = Date(),
@@ -144,6 +146,7 @@ class ChatSession: ObservableObject {
                          "Pattern Weaver"*/],
     messages: [Message] = []
   ) {
+    self.chatManager = chatManager
     self.id = id
     self.createdAt = createdAt
     self.updatedAt = updatedAt

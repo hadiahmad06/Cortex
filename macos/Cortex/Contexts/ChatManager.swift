@@ -55,7 +55,7 @@ class ChatManager: ObservableObject {
     if let existingSession = sessions[resolvedID] {
       return existingSession
     } else {
-      let newSession = ChatSession(id: resolvedID)
+      let newSession = ChatSession(chatManager: self, id: resolvedID)
       sessions[resolvedID] = newSession
       return newSession
     }
@@ -75,7 +75,7 @@ class ChatManager: ObservableObject {
       }
     } else {
       // creates new (from fetch usually)
-      let newSession = ChatSession(id: id)
+      let newSession = ChatSession(chatManager: self, id: id)
       sessions[id] = newSession
     }
   }
@@ -88,7 +88,7 @@ extension ChatManager {
       let descriptor = FetchDescriptor<ChatSessionEntity>()
       let entities = try context.fetch(descriptor)
       for entity in entities {
-        let session = entity.toLocal()
+        let session = entity.toLocal(chatManager: self)
         sessions[session.id] = session
       }
     } catch {

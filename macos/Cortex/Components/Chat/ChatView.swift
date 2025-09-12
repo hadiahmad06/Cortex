@@ -8,7 +8,6 @@
 import SwiftUI
 
 struct ChatView: View {
-  @EnvironmentObject var ctx: AppContexts
   // Hover tracking
   @State private var hoveredMessageID: UUID?
   
@@ -127,53 +126,55 @@ struct MessageFooterDupe: View {
 
 #Preview {
   ChatContainer(isOverlay: true)
-    .environmentObject(AppContexts.ctx)
+    .environmentObject(ChatManager())
+    .environmentObject(SettingsManager())
+    .environmentObject(TutorialManager())
 }
 
 
-struct ChatView_Previews: PreviewProvider {
-  
-  
-  struct StreamingPreview: View {
-    private var chatSessionContext: ChatSession
-    
-    init() {
-      chatSessionContext = AppContexts.ctx.chatContext.session()
-      AppContexts.ctx.chatContext.overlayChatID = chatSessionContext.id
-    }
-    
-    let fullMessage = "Hello! This is a streaming message. It will appear character by character to simulate an LLM response."
-    @State private var timer: Timer? = nil
-    @State private var index: Int = 0
-
-    var body: some View {
-      ChatContainer(isOverlay: true)
-        .onAppear {
-          chatSessionContext.startIncomingMessage()
-          index = 0
-          DispatchQueue.main.asyncAfter(deadline: .now() + 2) {
-            timer?.invalidate()
-            timer = Timer.scheduledTimer(withTimeInterval: 0.025, repeats: true) { t in
-              if index < fullMessage.count {
-                let nextChar = fullMessage[fullMessage.index(fullMessage.startIndex, offsetBy: index)]
-                chatSessionContext.addIncomingChunk(String(nextChar))
-                index += 1
-              } else {
-                t.invalidate()
-                DispatchQueue.main.async {
-                  chatSessionContext.finalizeIncomingMessage(id: UUID())
-                }
-              }
-            }
-          }
-        }
-        .onDisappear {
-            timer?.invalidate()
-        }
-    }
-  }
-  
-  static var previews: some View {
-    StreamingPreview()
-  }
-}
+//struct ChatView_Previews: PreviewProvider {
+//  
+//  
+//  struct StreamingPreview: View {
+//    private var chatSessionContext: ChatSession
+//    
+//    init() {
+//      chatSessionContext = AppContexts.ctx.chatContext.session()
+//      AppContexts.ctx.chatContext.overlayChatID = chatSessionContext.id
+//    }
+//    
+//    let fullMessage = "Hello! This is a streaming message. It will appear character by character to simulate an LLM response."
+//    @State private var timer: Timer? = nil
+//    @State private var index: Int = 0
+//
+//    var body: some View {
+//      ChatContainer(isOverlay: true)
+//        .onAppear {
+//          chatSessionContext.startIncomingMessage()
+//          index = 0
+//          DispatchQueue.main.asyncAfter(deadline: .now() + 2) {
+//            timer?.invalidate()
+//            timer = Timer.scheduledTimer(withTimeInterval: 0.025, repeats: true) { t in
+//              if index < fullMessage.count {
+//                let nextChar = fullMessage[fullMessage.index(fullMessage.startIndex, offsetBy: index)]
+//                chatSessionContext.addIncomingChunk(String(nextChar))
+//                index += 1
+//              } else {
+//                t.invalidate()
+//                DispatchQueue.main.async {
+//                  chatSessionContext.finalizeIncomingMessage(id: UUID())
+//                }
+//              }
+//            }
+//          }
+//        }
+//        .onDisappear {
+//            timer?.invalidate()
+//        }
+//    }
+//  }
+//  
+//  static var previews: some View {
+//    StreamingPreview()
+//  }
+//}

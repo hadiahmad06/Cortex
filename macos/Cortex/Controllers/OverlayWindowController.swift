@@ -13,7 +13,9 @@ class OverlayWindowController: NSObject, NSWindowDelegate {
   static let shared = OverlayWindowController()
   private var panel: NSPanel?
 
-//  var contexts: AppContexts
+  var chat: ChatManager?
+  var settings: SettingsManager?
+  var tutorial: TutorialManager?
   
   private let minWidth: CGFloat = 350
   private let maxWidth: CGFloat = 600
@@ -35,6 +37,11 @@ class OverlayWindowController: NSObject, NSWindowDelegate {
   }
 
   private func createPanel() {
+    guard let chat = chat, let settings = settings, let tutorial = tutorial else {
+      print("OverlayWindowController: Cannot create panel — one or more managers are nil.")
+      return
+    }
+    
     let width: CGFloat = 400
     let height: CGFloat = 400
     let screen = NSScreen.main?.visibleFrame ?? NSRect(x: 0, y: 0, width: 800, height: 600)
@@ -68,7 +75,9 @@ class OverlayWindowController: NSObject, NSWindowDelegate {
     let hosting = NSHostingView(
       rootView: OverlayView()
         .background(Color.clear.contentShape(Rectangle()))
-        .environmentObject(AppContexts.ctx)
+        .environmentObject(chat)
+        .environmentObject(settings)
+        .environmentObject(tutorial)
     )
     panel.contentView = hosting
 

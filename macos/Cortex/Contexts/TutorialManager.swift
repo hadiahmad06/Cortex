@@ -25,7 +25,7 @@ class TutorialManager: ObservableObject {
   private var cancellables = Set<AnyCancellable>()
   private let key = "tutorial_state"
   
-  private init() {
+  init() {
     load()
     observeChanges()
   }

@@ -10,7 +10,7 @@ import SwiftUI
 
 
 struct SettingsView: View {
-  @ObservedObject var manager: SettingsManager
+  @EnvironmentObject var manager: SettingsManager
 
   var body: some View {
     VStack {
