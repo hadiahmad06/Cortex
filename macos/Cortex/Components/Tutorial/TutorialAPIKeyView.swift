@@ -1,0 +1,88 @@
+//
+//  API.swift
+//  Cortex
+//
+//  Created by Hadi Ahmad on 9/11/25.
+//
+
+import SwiftUI
+
+struct TutorialAPIKeyView: TutorialStepView, View {
+  @EnvironmentObject var manager: TutorialManager
+  @EnvironmentObject var settings: SettingsManager
+  
+  var step: TutorialStep { get { return .addKey } }
+  var erased: AnyView { AnyView(self) }
+  
+  @State private var error: String? = nil
+  
+  func nextValidation() -> Bool {
+    
+    print("attempting validation")
+    let key = settings.settings.openrouter_api_key.trimmingCharacters(in: .whitespacesAndNewlines)
+    
+    // Example regex for a typical API key:
+    // 32–64 alphanumeric characters, optionally with dashes
+    let pattern = #"^[A-Za-z0-9\-]{32,64}$"#
+    
+    if let _ = key.range(of: pattern, options: .regularExpression) {
+      print("passed")
+      return true
+    } else {
+      print("failed")
+      self.error = "Please enter a valid API key."
+      return false
+    }
+  }
+  
+  func skipValidation() -> Bool { return nextValidation() }
+
+  var body: some View {
+    VStack(spacing: 20) {
+      Text("Add Your API Key")
+        .font(.title)
+        .bold()
+
+      Text("To start chatting, you need to enter your OpenRouter API key. You can find it on the OpenRouter dashboard.")
+        .font(.body)
+        .multilineTextAlignment(.center)
+      
+      Text("Don't worry! We don't store your API key anywhere, it's all local.")
+        .font(.body)
+        .multilineTextAlignment(.center)
+      
+      if let error = error {
+        Text(error)
+          .font(.body)
+          .foregroundColor(.red)
+          .multilineTextAlignment(.center)
+      }
+      
+      SettingsRow(pv: 2) {
+        APIKeyTextField(
+          placeholder: "OpenRouter API Key",
+          apiKey: $settings.settings.openrouter_api_key
+        )
+      }
+      
+    }
+    .padding()
+    .frame(maxWidth: 400)
+    .background(.ultraThinMaterial)
+    .cornerRadius(16)
+    .shadow(radius: 20)
+    .transition(.scale)
+  }
+}
+
+struct TutorialAPIKeyView_Previews: PreviewProvider {
+    static var previews: some View {
+        TutorialAPIKeyView()
+            .environmentObject(TutorialManager())
+            .environmentObject(ChatManager())
+            .environmentObject(SettingsManager())
+            .frame(width: 600, height: 300)
+            .padding()
+            .background(Color.gray.opacity(0.2))
+    }
+}

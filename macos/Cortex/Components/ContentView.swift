@@ -8,21 +8,29 @@
 import SwiftUI
 
 struct ContentView: View {
+  @EnvironmentObject var tutorial: TutorialManager
+  
   @State var isSidebarOpen = true
   
   var body: some View {
-    HStack(spacing: 0) {
-      if isSidebarOpen {
-        SidebarView(isSidebarOpen: $isSidebarOpen)
+    ZStack {
+      HStack(spacing: 0) {
+        if isSidebarOpen {
+          SidebarView(isSidebarOpen: $isSidebarOpen)
+        }
+        VStack {
+          Spacer()
+          
+          ChatContainer(isOverlay: false)
+          
+        }
       }
-      VStack {
-        Spacer()
-        
-        ChatContainer(isOverlay: false)
-        
+      .frame(maxWidth: .infinity, maxHeight: .infinity)
+      if let _ = tutorial.nextIncompleteStep() {
+        Color.black.opacity(0.4)
+        TutorialView()
       }
     }
-    .frame(maxWidth: .infinity, maxHeight: .infinity)
     .onWindow { window in
       window.titleVisibility = .hidden
       window.titlebarAppearsTransparent = true
