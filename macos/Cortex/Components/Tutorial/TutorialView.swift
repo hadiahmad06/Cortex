@@ -11,27 +11,28 @@ struct TutorialView: View {
   @EnvironmentObject var tutorial: TutorialManager
   @EnvironmentObject var settings: SettingsManager
   
-  @State var child: (any TutorialStepView)? = nil
+//  @State var child: (any TutorialStepView)? = nil
   @State var error: String? = nil
+  
+  var child: (any TutorialStepView)? {
+    viewFor(tutorial.currentStep)
+  }
   
   private func viewFor(_ step: TutorialStep?) -> (any TutorialStepView)? {
     switch step {
     case .addKey:
-      return TutorialAPIKeyView(
-        settings: settings,
-        error: $error
-      )
-    case .chatBasics:
-      return EmptyTutorialView()
-    case .clearingChats:
-      return TutorialAPIKeyView(
+      return APIKeyStep(
         settings: settings,
         error: $error
       )
     case .limits:
+      return LimitsStep(
+        settings: settings
+      )
+    case .chatBasics:
       return EmptyTutorialView()
     case .modelSwitching:
-      return TutorialAPIKeyView(
+      return APIKeyStep(
         settings: settings,
         error: $error
       )
@@ -41,46 +42,45 @@ struct TutorialView: View {
   }
   
   var body: some View {
-    VStack(spacing: 20) {
-      if let child = self.child {
-        child.erased
-      }
+    if let child = self.child {
+      Color.black.opacity(0.4)
+      VStack(spacing: 20) {
+        if let child = self.child {
+          child.erased
+        }
         
-      HStack(spacing: 16) {
-        PromptButton(
-          title: "Skip",
-          action: {
-            if let child = self.child {
-              if child.skipValidation() {
-                tutorial.complete(step: child.step)
-              }
+        HStack(spacing: 16) {
+          PromptButton(
+            title: "Skip",
+            action: {
+//              if let child = self.child {
+                if child.skipValidation() {
+                  tutorial.complete(step: child.step)
+                }
+//              }
+            },
+            foregroundColor: .primary,
+            backgroundColor: Color.gray.opacity(0.2)
+          )
+          
+          PromptButton(
+            title: "Next",
+            action: {
+//              if let child = self.child {
+                if child.nextValidation() {
+                  tutorial.complete(step: child.step)
+                }
+//              }
             }
-          },
-          foregroundColor: .primary,
-          backgroundColor: Color.gray.opacity(0.2)
-        )
-
-        PromptButton(
-          title: "Next",
-          action: {
-            if let child = self.child {
-              if child.nextValidation() {
-                tutorial.complete(step: child.step)
-              }
-            }
-          }
-        )
+          )
+        }
       }
-    }
-    .frame(maxWidth: 400)
-    .padding(16)
-    .background(.ultraThinMaterial)
-    .cornerRadius(24)
-    .shadow(radius: 20)
-    .transition(.scale)
-    
-    .onAppear {
-      self.child = viewFor(.addKey)//manager.nextIncompleteStep())
+      .frame(maxWidth: 400)
+      .padding(16)
+      .background(.ultraThinMaterial)
+      .cornerRadius(24)
+      .shadow(radius: 20)
+      .transition(.scale)
     }
   }
 }

@@ -10,34 +10,41 @@ import Combine
 
 // MARK: - Codable Struct for All Settings
 struct AppSettings: Codable {
-    // API Keys
-    var openrouter_api_key: String = ""
+  // API Keys
+  var openrouter_api_key: String = ""
 
-    // App Preferences
-    var autoScroll: Bool = false
-    var fontSize: Double = 14
-    var sessionTimeout: Bool = true
-    var sessionTimeoutMinutes: Int = 15
-    var maxTokens: Int = 1000
-    var enableNotifications: Bool = true
-    var notificationSound: Bool = true
-    var badgeCountEnabled: Bool = true
+  // Chat Limits
+  var chatHistoryLength: Int = 3
+  var requestLimit: Int = 3
+  var maxTokensPerRequest: Int = 1000
+  var dailyTokenCap: Int = 10000
+  var allowTokenCapOverride: Bool = false
+  
+  // App Preferences
+  var autoScroll: Bool = false
+  var fontSize: Double = 14
+  var sessionTimeout: Bool = true
+  var sessionTimeoutMinutes: Int = 15
+  var maxTokens: Int = 1000
+  var enableNotifications: Bool = true
+  var notificationSound: Bool = true
+  var badgeCountEnabled: Bool = true
 
-    // Security & Privacy
-    var encryptLocalData: Bool = true
-    var saveSessionHistory: Bool = true
-    var requirePasswordOnLaunch: Bool = false
+  // Security & Privacy
+  var encryptLocalData: Bool = true
+  var saveSessionHistory: Bool = true
+  var requirePasswordOnLaunch: Bool = false
 
-    // File & Storage
-    var defaultSaveLocation: URL? = nil
-    var autoBackupEnabled: Bool = false
-    var syncWithCloud: Bool = false
+  // File & Storage
+  var defaultSaveLocation: URL? = nil
+  var autoBackupEnabled: Bool = false
+  var syncWithCloud: Bool = false
 
-    // Experimental / Advanced
-    var enableStreaming: Bool = true
-    var enableDebugLogging: Bool = false
-    var proxyURL: String = ""
-    var retryOnFailure: Bool = true
+  // Experimental / Advanced
+  var enableStreaming: Bool = true
+  var enableDebugLogging: Bool = false
+  var proxyURL: String = ""
+  var retryOnFailure: Bool = true
 }
 
 // MARK: - SettingsManager

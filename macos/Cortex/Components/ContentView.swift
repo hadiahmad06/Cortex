@@ -26,10 +26,10 @@ struct ContentView: View {
         }
       }
       .frame(maxWidth: .infinity, maxHeight: .infinity)
-      if let _ = tutorial.nextIncompleteStep() {
-        Color.black.opacity(0.4)
+//      if let _ = tutorial.nextIncompleteStep() {
+//        Color.black.opacity(0.4)
         TutorialView()
-      }
+//      }
     }
     .onWindow { window in
       window.titleVisibility = .hidden

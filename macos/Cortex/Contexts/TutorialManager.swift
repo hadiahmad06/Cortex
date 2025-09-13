@@ -11,16 +11,20 @@ import Combine
 // MARK: - Codable Struct for Tutorial State
 struct TutorialState: Codable {
   var hasAddedKey: Bool = false
+  var knowsLimits: Bool = false
   var knowsChatBasics: Bool = false
   var knowsModelSwitching: Bool = false
-  var knowsLimits: Bool = false
-  var knowsClearingChats: Bool = false
 }
 
 // MARK: - TutorialManager
 class TutorialManager: ObservableObject {
     
-  @Published var state = TutorialState() // all tutorial flags in one struct
+  @Published var state = TutorialState()
+  @Published var currentStep: TutorialStep? = nil {
+    didSet {
+      print("\(oldValue ?? .none) -> \(currentStep)")
+    }
+  }
   
   private var cancellables = Set<AnyCancellable>()
   private let key = "tutorial_state"
@@ -28,6 +32,12 @@ class TutorialManager: ObservableObject {
   init() {
     load()
     observeChanges()
+    updateCurrent()
+  }
+  
+  private func updateCurrent() {
+    print("next step updated")
+    self.currentStep = nextIncompleteStep()
   }
   
   // MARK: - Observe Changes Using Combine
@@ -58,25 +68,25 @@ class TutorialManager: ObservableObject {
   
   func resetTutorials() {
     state = TutorialState()
+    updateCurrent()
   }
   
   func nextIncompleteStep() -> TutorialStep? {
     if !state.hasAddedKey { return .addKey }
+    if !state.knowsLimits { return .limits }
     if !state.knowsChatBasics { return .chatBasics }
     if !state.knowsModelSwitching { return .modelSwitching }
-    if !state.knowsLimits { return .limits }
-    if !state.knowsClearingChats { return .clearingChats }
     return nil
   }
   
   func complete(step: TutorialStep) {
     switch step {
     case .addKey: state.hasAddedKey = true
+    case .limits: state.knowsLimits = true
     case .chatBasics: state.knowsChatBasics = true
     case .modelSwitching: state.knowsModelSwitching = true
-    case .limits: state.knowsLimits = true
-    case .clearingChats: state.knowsClearingChats = true
     }
+    updateCurrent()
   }
 }
 
@@ -86,15 +96,13 @@ enum TutorialStep: String, CaseIterable {
   case chatBasics
   case modelSwitching
   case limits
-  case clearingChats
   
-  var description: String {
-    switch self {
-    case .addKey: return "Add your API key to start chatting."
-    case .chatBasics: return "Learn how to send messages in the chat UI."
-    case .modelSwitching: return "Learn how to switch between models/providers."
-    case .limits: return "Understand usage limits and token costs."
-    case .clearingChats: return "Learn how to clear chats and reset context."
-    }
-  }
+//  var description: String {
+//    switch self {
+//    case .addKey: return "Add your API key to start chatting."
+//    case .chatBasics: return "Learn how to send messages in the chat UI."
+//    case .modelSwitching: return "Learn how to switch between models/providers."
+//    case .limits: return "Understand usage limits and token costs."
+//    }
+//  }
 }

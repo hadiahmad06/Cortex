@@ -11,20 +11,21 @@ import SwiftUI
 
 struct SettingsView: View {
   @EnvironmentObject var manager: SettingsManager
+  @EnvironmentObject var tutorial: TutorialManager
 
   var body: some View {
     VStack {
       ScrollView {
         LazyVStack {
           SettingsSection(title: "Session Timeout") {
-            SettingsRow(title: "Reset to New Chat", pv: 5) {
+            SettingsRow(title: "Reset to New Chat", pv: 5, content: {
               HStack {
                 Toggle("", isOn: $manager.settings.sessionTimeout)
                   .labelsHidden()
                   .toggleStyle(SwitchToggleStyle())
               }
-            }
-            SettingsRow(title: "Timeout Length", pv: 5) {
+            })
+            SettingsRow(title: "Timeout Length", pv: 5, content: {
               HStack {
                 MultiToggle(
                   options: SettingsDefaults.timeoutOptions,
@@ -36,7 +37,7 @@ struct SettingsView: View {
                   padding: 2
                 )
               }
-            }
+            })
           }
           
           SettingsSection(title: "API Keys") {
@@ -44,20 +45,23 @@ struct SettingsView: View {
               .font(.caption)
               .foregroundColor(.secondary)
               .frame(maxWidth: .infinity, alignment: .trailing)
-            SettingsRow() {
-              
+            SettingsRow(content: {
               APIKeyTextField(
                 placeholder: "OpenRouter API Key",
                 apiKey: $manager.settings.openrouter_api_key
               )
-            }
+            })
 //            SettingsRow(title: "Appearance")
           }
 //          
-//          SettingsSection(title: "About") {
-//            SettingsRow(title: "Version")
-//            SettingsRow(title: "Licenses")
-//          }
+          SettingsSection(title: "Tutorial") {
+            SettingsRow(
+              title: "Reset Tutorial",
+              pv: 8,
+              onClick: {tutorial.resetTutorials()},
+              isClickable: true
+            )
+          }
         }
       }
     }
@@ -97,15 +101,21 @@ struct SettingsRow<Content: View>: View {
   let title: String?
   @State private var isHovered = false
   let pv: CGFloat
+  let onClick: (() -> Void)   // optional action
+  let isClickable: Bool
   let content: () -> Content
   
   init(
     title: String? = nil,
     pv: CGFloat = 4,
+    onClick: @escaping () -> Void = {},
+    isClickable: Bool = false,
     @ViewBuilder content: @escaping () -> Content = { EmptyView() }
-  ){
+  ) {
     self.title = title
     self.pv = pv
+    self.onClick = onClick
+    self.isClickable = isClickable
     self.content = content
   }
   
@@ -115,10 +125,7 @@ struct SettingsRow<Content: View>: View {
         Text(title)
         Spacer()
       }
-//      Image(systemName: "chevron.right")
-//          .foregroundColor(.gray)
       content()
-          
     }
     .padding(.vertical, pv)
     .padding(.horizontal, 8)
@@ -126,7 +133,10 @@ struct SettingsRow<Content: View>: View {
     .cornerRadius(8)
     .contentShape(Rectangle())
     .onHover { hovering in
-      isHovered = hovering
+      isHovered = isClickable && hovering
+    }
+    .onTapGesture {
+      onClick()    // fire callback if provided
     }
     .listRowBackground(Color.clear)
   }
@@ -138,4 +148,14 @@ struct SettingsDefaults {
     ToggleOption(id: 15, label: "15"),
     ToggleOption(id: 30, label: "30")
   ]
+}
+
+
+#Preview {
+  SettingsView()
+    .environmentObject(SettingsManager())
+    .environmentObject(TutorialManager())
+    .environmentObject(ChatManager())
+    .frame(width: 300)
+    .padding(20)
 }

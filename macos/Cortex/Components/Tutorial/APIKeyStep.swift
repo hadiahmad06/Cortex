@@ -1,5 +1,5 @@
 //
-//  API.swift
+//  APIKeyStep.swift
 //  Cortex
 //
 //  Created by Hadi Ahmad on 9/11/25.
@@ -7,7 +7,7 @@
 
 import SwiftUI
 
-struct TutorialAPIKeyView: TutorialStepView, View {
+struct APIKeyStep: TutorialStepView, View {
   @ObservedObject var settings: SettingsManager
   @Binding var error: String?
   
@@ -31,7 +31,8 @@ struct TutorialAPIKeyView: TutorialStepView, View {
     }
   }
   
-  func skipValidation() -> Bool { return nextValidation() }
+  // allow skipping, so that they can explore the app ui.
+  func skipValidation() -> Bool { return true }
 
   var body: some View {
     VStack(spacing: 20) {
@@ -47,12 +48,12 @@ struct TutorialAPIKeyView: TutorialStepView, View {
         .font(.body)
         .multilineTextAlignment(.center)
       
-      SettingsRow(pv: 2) {
+      SettingsRow(pv: 2, content: {
         APIKeyTextField(
           placeholder: "OpenRouter API Key",
           apiKey: $settings.settings.openrouter_api_key
         )
-      }
+      })
       
       if let error = error {
         Text(error)
@@ -73,7 +74,7 @@ struct TutorialAPIKeyView: TutorialStepView, View {
 
 struct TutorialAPIKeyView_Previews: PreviewProvider {
   static var previews: some View {
-    TutorialAPIKeyView(
+    APIKeyStep(
       settings: SettingsManager(),
       error: .constant("Preview Error Message")
     )
