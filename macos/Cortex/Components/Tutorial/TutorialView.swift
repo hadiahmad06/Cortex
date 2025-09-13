@@ -8,28 +8,33 @@
 import SwiftUI
 
 struct TutorialView: View {
-  @EnvironmentObject var manager: TutorialManager
-  @EnvironmentObject var settings: TutorialManager
+  @EnvironmentObject var tutorial: TutorialManager
+  @EnvironmentObject var settings: SettingsManager
   
-  @State var child: (any TutorialStepView)? = nil //{
-//    didSet {
-//      self.childView = child?.erased
-//    }
-//  }
-//  @State var childView: AnyView? = nil
+  @State var child: (any TutorialStepView)? = nil
+  @State var error: String? = nil
   
   private func viewFor(_ step: TutorialStep?) -> (any TutorialStepView)? {
     switch step {
     case .addKey:
-      return TutorialAPIKeyView()
+      return TutorialAPIKeyView(
+        settings: settings,
+        error: $error
+      )
     case .chatBasics:
       return EmptyTutorialView()
     case .clearingChats:
-      return TutorialAPIKeyView()
+      return TutorialAPIKeyView(
+        settings: settings,
+        error: $error
+      )
     case .limits:
       return EmptyTutorialView()
     case .modelSwitching:
-      return TutorialAPIKeyView()
+      return TutorialAPIKeyView(
+        settings: settings,
+        error: $error
+      )
     default:
       return EmptyTutorialView()
     }
@@ -37,38 +42,37 @@ struct TutorialView: View {
   
   var body: some View {
     VStack(spacing: 20) {
-      if let child = child {
+      if let child = self.child {
         child.erased
       }
-      
-      if let child = child {
-        HStack(spacing: 16) {
-          PromptButton(
-            title: "Skip",
-            action: {
-              if child.skipValidation() { manager.complete(step: child.step) }
-            },
-            foregroundColor: .primary,
-            backgroundColor: Color.gray.opacity(0.2)
-          )
-
-          PromptButton(
-            title: "Next",
-            action: {
-              if child.nextValidation() {
-                print("NEXT TUTORIAL STEP!!")
-                manager.complete(step: child.step) }
+        
+      HStack(spacing: 16) {
+        PromptButton(
+          title: "Skip",
+          action: {
+            if let child = self.child {
+              if child.skipValidation() {
+                tutorial.complete(step: child.step)
+              }
             }
-          )
-        }
-//        .padding(.top, 10)
+          },
+          foregroundColor: .primary,
+          backgroundColor: Color.gray.opacity(0.2)
+        )
+
+        PromptButton(
+          title: "Next",
+          action: {
+            if let child = self.child {
+              if child.nextValidation() {
+                tutorial.complete(step: child.step)
+              }
+            }
+          }
+        )
       }
     }
     .frame(maxWidth: 400)
-//    .padding()
-//    .background(.ultraThinMaterial)
-//    .cornerRadius(16)
-//    .shadow(radius: 20)
     .padding(16)
     .background(.ultraThinMaterial)
     .cornerRadius(24)

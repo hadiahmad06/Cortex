@@ -8,17 +8,13 @@
 import SwiftUI
 
 struct TutorialAPIKeyView: TutorialStepView, View {
-  @EnvironmentObject var manager: TutorialManager
-  @EnvironmentObject var settings: SettingsManager
+  @ObservedObject var settings: SettingsManager
+  @Binding var error: String?
   
   var step: TutorialStep { get { return .addKey } }
   var erased: AnyView { AnyView(self) }
   
-  @State private var error: String? = nil
-  
   func nextValidation() -> Bool {
-    
-    print("attempting validation")
     let key = settings.settings.openrouter_api_key.trimmingCharacters(in: .whitespacesAndNewlines)
     
     // Example regex for a typical API key:
@@ -30,7 +26,7 @@ struct TutorialAPIKeyView: TutorialStepView, View {
       return true
     } else {
       print("failed")
-      self.error = "Please enter a valid API key."
+      error = "Please enter a valid API key."
       return false
     }
   }
@@ -51,18 +47,18 @@ struct TutorialAPIKeyView: TutorialStepView, View {
         .font(.body)
         .multilineTextAlignment(.center)
       
-      if let error = error {
-        Text(error)
-          .font(.body)
-          .foregroundColor(.red)
-          .multilineTextAlignment(.center)
-      }
-      
       SettingsRow(pv: 2) {
         APIKeyTextField(
           placeholder: "OpenRouter API Key",
           apiKey: $settings.settings.openrouter_api_key
         )
+      }
+      
+      if let error = error {
+        Text(error)
+          .font(.body)
+          .foregroundColor(.red)
+          .multilineTextAlignment(.center)
       }
       
     }
@@ -76,13 +72,16 @@ struct TutorialAPIKeyView: TutorialStepView, View {
 }
 
 struct TutorialAPIKeyView_Previews: PreviewProvider {
-    static var previews: some View {
-        TutorialAPIKeyView()
-            .environmentObject(TutorialManager())
-            .environmentObject(ChatManager())
-            .environmentObject(SettingsManager())
-            .frame(width: 600, height: 300)
-            .padding()
-            .background(Color.gray.opacity(0.2))
-    }
+  static var previews: some View {
+    TutorialAPIKeyView(
+      settings: SettingsManager(),
+      error: .constant("Preview Error Message")
+    )
+      .environmentObject(TutorialManager())
+      .environmentObject(ChatManager())
+  //            .environmentObject(SettingsManager())
+      .frame(width: 600, height: 300)
+      .padding()
+      .background(Color.gray.opacity(0.2))
+  }
 }
