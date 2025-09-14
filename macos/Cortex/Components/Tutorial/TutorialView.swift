@@ -20,6 +20,8 @@ struct TutorialView: View {
   
   private func viewFor(_ step: TutorialStep?) -> (any TutorialStepView)? {
     switch step {
+    case .welcome:
+      return WelcomeStep()
     case .addKey:
       return APIKeyStep(
         settings: settings,
@@ -29,15 +31,8 @@ struct TutorialView: View {
       return LimitsStep(
         settings: settings
       )
-    case .chatBasics:
-      return EmptyTutorialView()
-    case .modelSwitching:
-      return APIKeyStep(
-        settings: settings,
-        error: $error
-      )
     default:
-      return EmptyTutorialView()
+      return nil
     }
   }
   
@@ -69,6 +64,7 @@ struct TutorialView: View {
 //              if let child = self.child {
                 if child.nextValidation() {
                   tutorial.complete(step: child.step)
+                  error = nil
                 }
 //              }
             }
@@ -110,6 +106,8 @@ private struct EmptyTutorialView: TutorialStepView, View {
 struct TutorialView_Previews: PreviewProvider {
     static var previews: some View {
         TutorialView()
+        .environmentObject(TutorialManager())
+        .environmentObject(SettingsManager())
             .frame(width: 600, height: 300)
             .padding()
             .background(Color.gray.opacity(0.2))

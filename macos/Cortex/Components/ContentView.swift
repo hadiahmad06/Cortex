@@ -46,4 +46,5 @@ struct ContentView: View {
       .environmentObject(ChatManager())
       .environmentObject(SettingsManager())
       .environmentObject(TutorialManager())
+      .frame(width: 600, height: 400)
 }

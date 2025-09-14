@@ -10,6 +10,7 @@ import Combine
 
 // MARK: - Codable Struct for Tutorial State
 struct TutorialState: Codable {
+  var welcome: Bool = false
   var hasAddedKey: Bool = false
   var knowsLimits: Bool = false
   var knowsChatBasics: Bool = false
@@ -20,11 +21,7 @@ struct TutorialState: Codable {
 class TutorialManager: ObservableObject {
     
   @Published var state = TutorialState()
-  @Published var currentStep: TutorialStep? = nil {
-    didSet {
-      print("\(oldValue ?? .none) -> \(currentStep)")
-    }
-  }
+  @Published var currentStep: TutorialStep? = nil
   
   private var cancellables = Set<AnyCancellable>()
   private let key = "tutorial_state"
@@ -36,7 +33,6 @@ class TutorialManager: ObservableObject {
   }
   
   private func updateCurrent() {
-    print("next step updated")
     self.currentStep = nextIncompleteStep()
   }
   
@@ -72,6 +68,7 @@ class TutorialManager: ObservableObject {
   }
   
   func nextIncompleteStep() -> TutorialStep? {
+    if !state.welcome { return .welcome }
     if !state.hasAddedKey { return .addKey }
     if !state.knowsLimits { return .limits }
     if !state.knowsChatBasics { return .chatBasics }
@@ -80,7 +77,9 @@ class TutorialManager: ObservableObject {
   }
   
   func complete(step: TutorialStep) {
+//    print("completed")
     switch step {
+    case .welcome: state.welcome = true
     case .addKey: state.hasAddedKey = true
     case .limits: state.knowsLimits = true
     case .chatBasics: state.knowsChatBasics = true
@@ -92,6 +91,7 @@ class TutorialManager: ObservableObject {
 
 // MARK: - Tutorial Steps Enum
 enum TutorialStep: String, CaseIterable {
+  case welcome
   case addKey
   case chatBasics
   case modelSwitching

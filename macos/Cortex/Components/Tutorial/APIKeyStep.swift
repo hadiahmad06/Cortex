@@ -22,10 +22,10 @@ struct APIKeyStep: TutorialStepView, View {
     let pattern = #"^[A-Za-z0-9\-]{32,64}$"#
     
     if let _ = key.range(of: pattern, options: .regularExpression) {
-      print("passed")
+//      print("passed")
       return true
     } else {
-      print("failed")
+//      print("failed")
       error = "Please enter a valid API key."
       return false
     }

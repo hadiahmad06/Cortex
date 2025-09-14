@@ -76,13 +76,16 @@ struct LimitsStep: View, TutorialStepView {
         "Allow token cap override",
         isOn: $settings.settings.allowTokenCapOverride
       )
-
-      Spacer()
       
       Text("You can change these settings later in Preferences.")
         .font(.footnote)
         .foregroundColor(.secondary)
     }
     .padding()
+    .frame(maxWidth: 400)
+    .background(.ultraThinMaterial)
+    .cornerRadius(16)
+    .shadow(radius: 20)
+    .transition(.scale)
   }
 }
