@@ -72,17 +72,17 @@ struct APIKeyStep: TutorialStepView, View {
   }
 }
 
-struct TutorialAPIKeyView_Previews: PreviewProvider {
-  static var previews: some View {
-    APIKeyStep(
-      settings: SettingsManager(),
-      error: .constant("Preview Error Message")
-    )
-      .environmentObject(TutorialManager())
-      .environmentObject(ChatManager())
-  //            .environmentObject(SettingsManager())
-      .frame(width: 600, height: 300)
-      .padding()
-      .background(Color.gray.opacity(0.2))
-  }
+#Preview {
+  let tutorial = TutorialManager()
+  
+  tutorial.resetTutorials()
+  tutorial.complete(step: .welcome)
+  
+  return ContentView()
+    .environmentObject(tutorial)
+    .environmentObject(SettingsManager())
+    .environmentObject(ChatManager())
+    .frame(width: 600, height: 400)
+    .padding()
+
 }

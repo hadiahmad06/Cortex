@@ -19,7 +19,7 @@ struct ToggleOption<ID: Hashable>: Identifiable, Hashable {
 struct MultiToggle<ID: Hashable>: View {
   let options: [ToggleOption<ID>]
   @Binding var selected: ID
-  var accentColor: Color = Color.blue
+  var accentColor: Color = Color.accentColor.opacity(0.7)
   var fontSize: CGFloat = 16
   var optionHeight: CGFloat = 30
   var optionWidth: CGFloat? = nil

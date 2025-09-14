@@ -12,7 +12,7 @@ import Combine
 struct TutorialState: Codable {
   var welcome: Bool = false
   var hasAddedKey: Bool = false
-  var knowsLimits: Bool = false
+  var knowsLimits: Bool = true
   var knowsChatBasics: Bool = false
   var knowsModelSwitching: Bool = false
 }

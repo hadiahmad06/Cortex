@@ -71,7 +71,7 @@ struct TutorialView: View {
           )
         }
       }
-      .frame(maxWidth: 400)
+//      .frame(maxWidth: 400)
       .padding(16)
       .background(.ultraThinMaterial)
       .cornerRadius(24)
