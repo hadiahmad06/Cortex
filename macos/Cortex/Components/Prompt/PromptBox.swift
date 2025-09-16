@@ -97,8 +97,7 @@ struct PromptBox: View {
     }
     .background(Color.white.opacity(0.05))
     .cornerRadius(16)
-    .overlay(RoundedRectangle(cornerRadius: 16).stroke(Color.black.opacity(0.5), lineWidth: 1.5))
-    .overlay(RoundedRectangle(cornerRadius: 16).stroke(Color.gray.opacity(0.4), lineWidth: 1.25))
+    .overlay(RoundedRectangle(cornerRadius: 16).stroke(Color.white.opacity(0.05), lineWidth: 1).allowsHitTesting(false))
     .padding(16)
   }
 }

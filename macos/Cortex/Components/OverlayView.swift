@@ -66,8 +66,7 @@ struct OverlayView: View {
         )
       }
       .cornerRadius(24)
-      .overlay(RoundedRectangle(cornerRadius: 24).stroke(Color.black.opacity(0.5), lineWidth: 1.5))
-      .overlay(RoundedRectangle(cornerRadius: 24).stroke(Color.gray.opacity(0.4), lineWidth: 1.25))
+      .overlay(RoundedRectangle(cornerRadius: 24).stroke(Color.white.opacity(0.15), lineWidth: 1).allowsHitTesting(false))
       .animation(.easeInOut(duration: 0.2), value: isHovered)
 //      .onAppear {
 //        NSApp.activate(ignoringOtherApps: true)
