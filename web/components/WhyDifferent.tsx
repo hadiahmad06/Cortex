@@ -1,49 +1,71 @@
-'use client';
+'use client'
 
-import { motion } from 'framer-motion'
+import { motion, useScroll, useTransform } from 'framer-motion'
+import { useRef } from 'react'
 
-const features = [
-  {
-    title: "Remembers conversations",
-    subtitle: "So you never have to repeat yourself."
-  },
-  {
-    title: "Syncs across devices",
-    subtitle: "Pick up right where you left off."
-  },
-  {
-    title: "Multimodal",
-    subtitle: "Because your thoughts aren’t just words."
-  }
-]
+const PlaceholderImage = () => {
+  return (
+    <div className="w-64 h-64 bg-gradient-to-br from-indigo-400 to-pink-400 rounded-xl shadow-lg" />
+  )
+}
 
 const WhyDifferent = () => {
-  return (
-    <section className="py-24 px-6 bg-background">
-      <motion.div
-        className="max-w-4xl mx-auto text-center mb-12"
-        initial={{ opacity: 0, y: 20 }}
-        whileInView={{ opacity: 1, y: 0 }}
-        viewport={{ once: true, amount: 0.2 }}
-        transition={{ duration: 0.6 }}
-      >
-        <h2 className="text-4xl font-bold text-foreground">This isn’t just an assistant. It’s your memory.</h2>
-      </motion.div>
+  const ref = useRef(null)
+  const { scrollYProgress } = useScroll({
+    target: ref,
+    offset: ["start end", "center center"], // when section enters/leaves viewport
+  })
 
-      <div className="max-w-3xl mx-auto space-y-12">
-        {features.map((feature, index) => (
-          <motion.div
-            key={feature.title}
-            className="text-center"
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true, amount: 0.2 }}
-            transition={{ duration: 0.6, delay: index * 0.2 }}
+
+  // Exponential/quadratic ease-out helper with optional start/end
+  const eased = (value: number, start = 0, end = 1) => {
+    // clamp and normalize value to 0->1 within start->end
+    const t = Math.min(Math.max((value - start) / (end - start), 0), 1)
+    return 1 - Math.pow(1 - t, 2) // quadratic ease-out
+  }
+
+  const textX1 = useTransform(scrollYProgress, value => -400 + eased(value, 0, 0.6) * 400)
+  const textX2 = useTransform(scrollYProgress, value => -400 + eased(value, 0.4, 1) * 400)
+  const textOpacity = useTransform(scrollYProgress, value => eased(Math.min(value / 0.3, 1))) // normalized to 0-1
+
+  const imgX = useTransform(scrollYProgress, value => 200 - eased(value) * 200)
+  const imgRotateZ = useTransform(scrollYProgress, value => -20 + eased(value) * 50)
+  const imgRotateY = useTransform(scrollYProgress, value => -50 + eased(value, 0, 0.5) * 50)
+  const imgOpacity = useTransform(scrollYProgress, value => eased(Math.min(value / 0.3, 1)))
+
+  return (
+    <section ref={ref} className="py-24 px-6 bg-background">
+      <div className="max-w-6xl mx-auto grid grid-cols-1 md:grid-cols-2 items-center gap-12">
+        {/* Left side: text */}
+
+        <div className="flex flex-col">
+          <motion.h2
+            className="text-5xl font-bold text-foreground leading-tight"
+            style={{ x: textX1, opacity: textOpacity }}
           >
-            <h3 className="text-2xl font-semibold text-foreground">{feature.title}</h3>
-            <p className="text-muted mt-2">{feature.subtitle}</p>
-          </motion.div>
-        ))}
+            All Models.
+          </motion.h2>
+
+          <motion.h2
+            className="text-5xl font-bold text-foreground leading-tight"
+            style={{ x: textX2, opacity: textOpacity }}
+          >
+            All Yours.
+          </motion.h2>
+        </div>
+
+        {/* Right side: scroll-tied image */}
+        <motion.div
+          className="flex justify-center"
+          style={{
+            x: imgX,
+            opacity: imgOpacity,
+            rotateZ: imgRotateZ,
+            rotateY: imgRotateY,
+          }}
+        >
+          <PlaceholderImage />
+        </motion.div>
       </div>
     </section>
   )

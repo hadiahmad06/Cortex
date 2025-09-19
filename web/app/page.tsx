@@ -48,11 +48,12 @@ export default function LandingPage() {
       {/* Hero Section */}
       <Hero />
 
+      {/* Why It’s Different Section */}
+      <WhyDifferent />
+      
       {/* Comparison Section */}
       <ComparisonSection examples={comparisonData} />
 
-      {/* Why It’s Different Section */}
-      {/* <WhyDifferent /> */}
 
       {/* Device Showcase Section */}
       {/* <DeviceShowcase images={deviceImages} caption="Work anywhere. Pick up right where you left off." /> */}
