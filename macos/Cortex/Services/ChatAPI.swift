@@ -46,13 +46,24 @@ public struct ChatAPI {
   
   static func sendPromptWithContext(
     _ newMessage: String,
-    settings: AppSettings,
+    settings: AppSettings?,
     previousMessages: [Message],
     sessionID: UUID,
     onChunk: @escaping (String) -> Void,
     onComplete: @escaping (UUID, UUID) -> Void,
     onError: @escaping (Error) -> Void
   ) {
+    
+    
+    onError(NSError(domain: "ChatAPI", code: 999, userInfo: [
+      NSLocalizedDescriptionKey: "This is a spoofed test error"
+    ]))
+    return
+    
+    guard let settings = settings else {
+      onError(NSError(domain: "ChatAPI", code: 0, userInfo: [NSLocalizedDescriptionKey: "Settings not injected"]))
+      return
+    }
     
     guard let url = URL(string: "https://api.openrouter.ai/v1/chat/completions") else {
       onError(NSError(domain: "ChatAPI", code: 0, userInfo: [NSLocalizedDescriptionKey: "Invalid URL"]))

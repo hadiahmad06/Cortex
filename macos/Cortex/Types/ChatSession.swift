@@ -10,7 +10,6 @@ import Combine
 
 class ChatSession: ObservableObject {
   var chatManager: ChatManager
-  var settings: SettingsManager
   
   static let draftID: UUID = UUID(uuidString: "00000000-0000-0000-0000-000000000000")!
   
@@ -87,6 +86,7 @@ class ChatSession: ObservableObject {
   }
 
   // TODO: bug where response fails to render MessageFooter and IconButton until another change is made.
+  @MainActor
   func sendCurrentPrompt() {
     guard !isIncoming && !prompt.isEmpty else { return }
     
@@ -106,6 +106,7 @@ class ChatSession: ObservableObject {
   }
 
   // Extracted helper
+  @MainActor
   private func appendAndSendPrompt() {
     startIncomingMessage()
     
@@ -124,7 +125,7 @@ class ChatSession: ObservableObject {
     
     ChatAPI.sendPromptWithContext(
       self.prompt,
-      settings: settings.settings,
+      settings: chatManager.settings?.settings,
       previousMessages: messages,
       sessionID: self.id,
       onChunk: addIncomingChunk,
@@ -138,7 +139,6 @@ class ChatSession: ObservableObject {
   }
   
   // Explicit initializer to set id manually
-  @MainActor
   init(
     chatManager: ChatManager,
     id: UUID,
@@ -152,7 +152,6 @@ class ChatSession: ObservableObject {
     messages: [Message] = []
   ) {
     self.chatManager = chatManager
-    self.settings = chatManager.settings!
     self.id = id
     self.createdAt = createdAt
     self.updatedAt = updatedAt
