@@ -119,12 +119,14 @@ class ChatSession: ObservableObject {
       status: .pending
     )
     
+    messages.append(msg)
+    
     let curriedOnComplete: (UUID, UUID) -> Void = { [weak self] promptID, responseID in
       self?.onComplete(localID: msg.id, promptID: promptID, responseID: responseID)
     }
     
     ChatAPI.sendPromptWithContext(
-      self.prompt,
+//      self.prompt,
       settings: chatManager.settings?.settings,
       previousMessages: messages,
       sessionID: self.id,
@@ -132,8 +134,6 @@ class ChatSession: ObservableObject {
       onComplete: curriedOnComplete,
       onError: { _ in }
     )
-    
-    messages.append(msg)
     
     self.prompt = ""
   }

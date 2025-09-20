@@ -45,7 +45,7 @@ public struct ChatAPI {
   }
   
   static func sendPromptWithContext(
-    _ newMessage: String,
+//    _ newMessage: String,
     settings: AppSettings?,
     previousMessages: [Message],
     sessionID: UUID,
@@ -86,7 +86,7 @@ public struct ChatAPI {
       ])
     }
 
-    messages.append(["role": "user", "content": newMessage])
+//    messages.append(["role": "user", "content": newMessage])
 
     let payload: [String: Any] = [
       "model": "auto",
