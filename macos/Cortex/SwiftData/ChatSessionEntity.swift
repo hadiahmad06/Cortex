@@ -24,7 +24,7 @@ public class ChatSessionEntity {
 }
 
 extension ChatSessionEntity {
-  func toLocal(chatManager: ChatManager) -> ChatSession {
+  @MainActor func toLocal(chatManager: ChatManager) -> ChatSession {
     return ChatSession(
       chatManager: chatManager,
       id: self.id,

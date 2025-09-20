@@ -17,6 +17,7 @@ public struct ChatAPI {
     return UUID()
   }
   
+  // MARK: old function to send just the prompt, will be used when I create a backend
   static func sendPrompt(
     _ prompt: String,
     sessionID: UUID,
@@ -33,21 +34,91 @@ public struct ChatAPI {
       String(response.dropFirst(10).prefix(10)),
       String(response.dropFirst(20))
     ]
-    // Simulate possible error
     do {
-      // 10% chance to throw an error
-//      if Int.random(in: 1...10) == 1 {
-//        struct MockError: Error {}
-//        throw MockError()
-//      }
       for chunk in chunks {
         onChunk(chunk)
-        // Simulate delay (not actually async, but could be)
       }
       onComplete(promptID, responseID)
     } catch {
       onError(error)
     }
+  }
+  
+  static func sendPromptWithContext(
+    _ newMessage: String,
+    settings: AppSettings,
+    previousMessages: [Message],
+    sessionID: UUID,
+    onChunk: @escaping (String) -> Void,
+    onComplete: @escaping (UUID, UUID) -> Void,
+    onError: @escaping (Error) -> Void
+  ) {
+    
+    guard let url = URL(string: "https://api.openrouter.ai/v1/chat/completions") else {
+      onError(NSError(domain: "ChatAPI", code: 0, userInfo: [NSLocalizedDescriptionKey: "Invalid URL"]))
+      return
+    }
+
+    var request = URLRequest(url: url)
+    request.httpMethod = "POST"
+    request.addValue("Bearer \(settings.openrouter_api_key)", forHTTPHeaderField: "Authorization")
+    request.addValue("application/json", forHTTPHeaderField: "Content-Type")
+
+    var messages: [[String: String]] = [
+      ["role": "system", "content": "You are a helpful assistant."]
+    ]
+
+    for msg in previousMessages {
+      messages.append([
+        "role": msg.isUser ? "user" : "assistant",
+        "content": msg.text
+      ])
+    }
+
+    messages.append(["role": "user", "content": newMessage])
+
+    let payload: [String: Any] = [
+      "model": "auto",
+      "messages": messages,
+      "stream": true
+    ]
+
+    do {
+      request.httpBody = try JSONSerialization.data(withJSONObject: payload, options: [])
+    } catch {
+      onError(error)
+      return
+    }
+
+    let promptID = UUID()
+    let responseID = UUID()
+
+    let task = URLSession.shared.dataTask(with: request) { data, response, error in
+      if let error = error {
+        onError(error)
+        return
+      }
+      guard let data = data else {
+        onError(NSError(domain: "ChatAPI", code: 0, userInfo: [NSLocalizedDescriptionKey: "No data returned"]))
+        return
+      }
+
+      do {
+        if let jsonArray = try JSONSerialization.jsonObject(with: data) as? [[String: Any]] {
+          for chunkObject in jsonArray {
+            if let content = chunkObject["delta"] as? String {
+              onChunk(content)
+            }
+          }
+          onComplete(promptID, responseID)
+        } else {
+          onError(NSError(domain: "ChatAPI", code: 0, userInfo: [NSLocalizedDescriptionKey: "Invalid response format"]))
+        }
+      } catch {
+        onError(error)
+      }
+    }
+    task.resume()
   }
     
   static func fetchMessages(for id: UUID?) -> [Message] {

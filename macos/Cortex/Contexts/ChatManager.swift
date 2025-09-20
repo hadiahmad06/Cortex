@@ -20,6 +20,8 @@ class ChatManager: ObservableObject {
     "Response Incoming..."
   ]
   
+  var settings: SettingsManager?
+  
   private let context: ModelContext = PersistenceController.shared.container.mainContext
   
   @Published private var sessions: [UUID: ChatSession] = [:] {

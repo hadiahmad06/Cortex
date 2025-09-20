@@ -10,6 +10,8 @@ import Combine
 
 class ChatSession: ObservableObject {
   var chatManager: ChatManager
+  var settings: SettingsManager
+  
   static let draftID: UUID = UUID(uuidString: "00000000-0000-0000-0000-000000000000")!
   
   // Local UUID (will sync later)
@@ -116,24 +118,27 @@ class ChatSession: ObservableObject {
       status: .pending
     )
     
-    messages.append(msg)
-    
     let curriedOnComplete: (UUID, UUID) -> Void = { [weak self] promptID, responseID in
       self?.onComplete(localID: msg.id, promptID: promptID, responseID: responseID)
     }
     
-    ChatAPI.sendPrompt(
+    ChatAPI.sendPromptWithContext(
       self.prompt,
+      settings: settings.settings,
+      previousMessages: messages,
       sessionID: self.id,
       onChunk: addIncomingChunk,
       onComplete: curriedOnComplete,
       onError: { _ in }
     )
     
+    messages.append(msg)
+    
     self.prompt = ""
   }
   
   // Explicit initializer to set id manually
+  @MainActor
   init(
     chatManager: ChatManager,
     id: UUID,
@@ -147,6 +152,7 @@ class ChatSession: ObservableObject {
     messages: [Message] = []
   ) {
     self.chatManager = chatManager
+    self.settings = chatManager.settings!
     self.id = id
     self.createdAt = createdAt
     self.updatedAt = updatedAt

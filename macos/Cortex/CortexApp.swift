@@ -39,6 +39,7 @@ struct CortexApp: App {
   @StateObject private var tutorial: TutorialManager = TutorialManager()
   
   init() {
+    chat.settings = settings
     OverlayWindowController.shared.chat = chat
     OverlayWindowController.shared.settings = settings
     OverlayWindowController.shared.tutorial = tutorial
