@@ -22,6 +22,10 @@ class OverlayWindowController: NSObject, NSWindowDelegate {
   private let minHeight: CGFloat = 300
   private let maxHeight: CGFloat = 1000
   
+  static var isVisible: Bool {
+    shared.panel?.isVisible ?? false
+  }
+  
   func toggle() {
     if panel == nil {
       createPanel()
@@ -50,13 +54,13 @@ class OverlayWindowController: NSObject, NSWindowDelegate {
 
     let panel = NSPanel(
       contentRect: NSRect(x: x, y: y, width: width, height: height),
-      styleMask: [.nonactivatingPanel, .resizable],
+      styleMask: [.titled, .resizable],
       backing: .buffered,
       defer: false
     )
 
     panel.isFloatingPanel = true
-    panel.level = .screenSaver
+    panel.level = .modalPanel
     panel.collectionBehavior = [.canJoinAllSpaces, .fullScreenAuxiliary, .transient]
     panel.backgroundColor = .clear
     panel.isOpaque = false
@@ -71,6 +75,11 @@ class OverlayWindowController: NSObject, NSWindowDelegate {
     panel.minSize = NSSize(width: minWidth, height: minHeight)
     panel.maxSize = NSSize(width: maxWidth, height: maxHeight)
     panel.delegate = self
+    // HIDE TRAFFIC LIGHTS MANUALLY
+    panel.standardWindowButton(.closeButton)?.isHidden = true
+    panel.standardWindowButton(.miniaturizeButton)?.isHidden = true
+    panel.standardWindowButton(.zoomButton)?.isHidden = true
+    panel.standardWindowButton(.fullScreenButton)?.isHidden = true
 
     let hosting = NSHostingView(
       rootView: OverlayView()
