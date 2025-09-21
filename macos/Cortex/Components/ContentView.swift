@@ -42,9 +42,13 @@ struct ContentView: View {
 }
 
 #Preview {
-    ContentView()
-      .environmentObject(ChatManager())
-      .environmentObject(SettingsManager())
-      .environmentObject(TutorialManager())
-      .frame(width: 600, height: 400)
+  
+  let settings = SettingsManager()
+  let chatManager = ChatManager(settings: settings)
+
+  ContentView()
+    .environmentObject(TutorialManager())
+    .environmentObject(chatManager)
+    .environmentObject(settings)
+    .frame(width: 600, height: 400)
 }

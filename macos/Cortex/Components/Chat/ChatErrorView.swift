@@ -1,5 +1,5 @@
 //
-//  ChatError.swift
+//  ChatErrorView.swift
 //  Cortex
 //
 //  Created by Hadi Ahmad on 9/20/25.
@@ -9,44 +9,52 @@ import SwiftUI
 
 struct ChatErrorView: View {
   var error: ChatError
-  
+
   init(_ error: ChatError) {
-    self.error = error
+      self.error = error
   }
-  
+
   var body: some View {
-    VStack(spacing: 16) {
+    HStack(spacing: 12) {
       // Icon
       Image(systemName: error.symbol)
-        .font(.system(size: 50))
+        .font(.title2)
         .foregroundColor(error.color)
-        .padding(.top, 20)
-
-      // Title
-      Text(error.title)
-        .font(.title2.bold())
-        .foregroundColor(.primary)
-        .multilineTextAlignment(.center)
-
-      // Description
-      Text(error.description)
-        .font(.body)
-        .foregroundColor(.secondary)
-        .multilineTextAlignment(.center)
-        .padding(.horizontal)
-
+        .frame(width: 32)
+      
+      VStack(alignment: .leading, spacing: 2) {
+        // Title
+        Text(error.title)
+          .font(.headline)
+          .foregroundColor(.primary)
+        
+        // Description
+        Text(error.description)
+          .font(.subheadline)
+          .foregroundColor(.secondary)
+          .lineLimit(2)
+      }
       Spacer()
     }
-    .padding()
+    .padding(12)
     .background(
-      RoundedRectangle(cornerRadius: 16)
-        .shadow(color: error.color.opacity(0.3), radius: 8, x: 0, y: 4)
+      RoundedRectangle(cornerRadius: 12)
+        .fill(Color(error.color).opacity(0.35))
+    )
+    .overlay(
+      RoundedRectangle(cornerRadius: 12)
+        .stroke(error.color.opacity(0.6), lineWidth: 1)
     )
     .padding(.horizontal, 24)
   }
 }
 
-
 #Preview {
-  ChatErrorView(.badAPIKey)
+  VStack {
+    ChatErrorView(.noInternet)
+    ChatErrorView(.badAPIKey)
+    ChatErrorView(.badRequest(message: "test message"))
+    ChatErrorView(.unknown(message: "test message"))
+  }
+  .padding()
 }

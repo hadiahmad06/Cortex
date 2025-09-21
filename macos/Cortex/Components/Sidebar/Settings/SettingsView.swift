@@ -152,10 +152,12 @@ struct SettingsDefaults {
 
 
 #Preview {
+  let settings = SettingsManager()
+  let chatManager = ChatManager(settings: settings)
+
   SettingsView()
-    .environmentObject(SettingsManager())
-    .environmentObject(TutorialManager())
-    .environmentObject(ChatManager())
+    .environmentObject(chatManager)
+    .environmentObject(settings)
     .frame(width: 300)
     .padding(20)
 }

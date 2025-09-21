@@ -54,7 +54,7 @@ class OverlayWindowController: NSObject, NSWindowDelegate {
 
     let panel = NSPanel(
       contentRect: NSRect(x: x, y: y, width: width, height: height),
-      styleMask: [.titled, .resizable],
+      styleMask: [/*.nonactivatingPanel, .borderless,*/ .titled, .resizable],
       backing: .buffered,
       defer: false
     )

@@ -43,6 +43,9 @@ class ChatSession: ObservableObject {
   
   // flag indicating if a message is currently streaming
   @Published var isIncoming: Bool = false
+  
+  // flag indicating current chat error
+  @Published var error: ChatError? = nil
 
   // checks if
   var isDraft: Bool {
@@ -83,6 +86,45 @@ class ChatSession: ObservableObject {
     let msg = messages.first(where: { $0.id == localID })
     msg?.backendID = promptID
     finalizeIncomingMessage(id: responseID)
+  }
+  
+  func onError(_ error: Error) {
+    // Reset streaming if no chunks received
+    if self.incomingMessageText.isEmpty { isIncoming = false }
+
+    // Coerce to NSError for domain/code inspection
+    let nsError = error as NSError
+
+    // Network / Internet / DNS issues
+    if nsError.domain == NSURLErrorDomain {
+      switch nsError.code {
+      case NSURLErrorNotConnectedToInternet,
+           NSURLErrorNetworkConnectionLost,
+           NSURLErrorCannotFindHost:
+        self.error = .noInternet
+        return
+      default:
+        break
+      }
+    }
+
+    // HTTP errors reported by ChatAPI
+    if nsError.domain == "ChatAPI" {
+      switch nsError.code {
+      case 400:
+        self.error = .badRequest(message: nsError.localizedDescription)
+        return
+      case 401:
+        self.error = .badAPIKey
+        return
+      default:
+        self.error = .unknown(message: "Server returned HTTP \(nsError.code)")
+        return
+      }
+    }
+
+    // Fallback for any other error (JSON parsing, unexpected errors)
+    self.error = .unknown(message: nsError.localizedDescription)
   }
 
   // TODO: bug where response fails to render MessageFooter and IconButton until another change is made.
@@ -127,15 +169,18 @@ class ChatSession: ObservableObject {
     
     ChatAPI.sendPromptWithContext(
 //      self.prompt,
-      settings: chatManager.settings?.settings,
+      settings: chatManager.settings.settings,
       previousMessages: messages,
       sessionID: self.id,
       onChunk: addIncomingChunk,
       onComplete: curriedOnComplete,
-      onError: { _ in }
+      onError: onError
     )
     
-    self.prompt = ""
+    // TODO: FIX SPINNING WHEEL OF DEATH!?!>>E<V!(UHRJC!
+    DispatchQueue.main.async {
+      self.prompt = ""
+    }
   }
   
   // Explicit initializer to set id manually

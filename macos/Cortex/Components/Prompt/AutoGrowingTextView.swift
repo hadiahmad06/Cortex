@@ -129,7 +129,7 @@ struct AutoGrowingTextView: NSViewRepresentable {
       recalculateHeight()
     }
 
-    func recalculateHeight() {
+    @MainActor func recalculateHeight() {
       guard let textView = textView else { return }
       guard let container = textView.textContainer, let layout = textView.layoutManager else { return }
 

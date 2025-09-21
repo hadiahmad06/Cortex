@@ -78,10 +78,13 @@ struct APIKeyStep: TutorialStepView, View {
   tutorial.resetTutorials()
   tutorial.complete(step: .welcome)
   
+  let settings = SettingsManager()
+  let chatManager = ChatManager(settings: settings)
+
   return ContentView()
     .environmentObject(tutorial)
-    .environmentObject(SettingsManager())
-    .environmentObject(ChatManager())
+    .environmentObject(chatManager)
+    .environmentObject(settings)
     .frame(width: 600, height: 400)
     .padding()
 

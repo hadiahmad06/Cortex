@@ -20,7 +20,7 @@ class ChatManager: ObservableObject {
     "Response Incoming..."
   ]
   
-  var settings: SettingsManager?
+  var settings: SettingsManager
   
   private let context: ModelContext = PersistenceController.shared.container.mainContext
   
@@ -36,9 +36,10 @@ class ChatManager: ObservableObject {
   @Published var windowChatID: UUID = ChatSession.draftID
 
   // TODO: lazy load sessions
-  init() {
-//    self.clearAllSessions()
+  init(settings: SettingsManager) {
+    self.settings = settings
     self.loadSessions()
+//    self.clearAllSessions()
   }
 
   private func updateSummaries() {

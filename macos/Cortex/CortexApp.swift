@@ -34,15 +34,18 @@ class AppDelegate: NSObject, NSApplicationDelegate {
 struct CortexApp: App {
   @NSApplicationDelegateAdaptor(AppDelegate.self) var appDelegate
   
-  @StateObject private var chat: ChatManager = ChatManager()
-  @StateObject private var settings: SettingsManager = SettingsManager()
+  @StateObject private var chat: ChatManager
+  @StateObject private var settings: SettingsManager
   @StateObject private var tutorial: TutorialManager = TutorialManager()
   
   init() {
-    chat.settings = settings
-    OverlayWindowController.shared.chat = chat
+    let settings = SettingsManager()
+    _settings = StateObject(wrappedValue: settings)
+    _chat = StateObject(wrappedValue: ChatManager(settings: settings))
+    
+    OverlayWindowController.shared.chat = _chat.wrappedValue
     OverlayWindowController.shared.settings = settings
-    OverlayWindowController.shared.tutorial = tutorial
+    OverlayWindowController.shared.tutorial = _tutorial.wrappedValue
   }
   
   var body: some Scene {

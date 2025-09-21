@@ -88,10 +88,13 @@ struct OverlayView: View {
 
 struct OverlayView_Previews: PreviewProvider {
   static var previews: some View {
+    let settings = SettingsManager()
+    let chatManager = ChatManager(settings: settings)
+    
     OverlayView()
       .previewLayout(.sizeThatFits)
-      .environmentObject(ChatManager())
-      .environmentObject(SettingsManager())
+      .environmentObject(chatManager)
+      .environmentObject(settings)
       .environmentObject(TutorialManager())
       .padding()
   }

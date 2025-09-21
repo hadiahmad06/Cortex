@@ -45,7 +45,7 @@ public struct ChatAPI {
   }
   
   static func sendPromptWithContext(
-//    _ newMessage: String,
+    // _ newMessage: String,
     settings: AppSettings?,
     previousMessages: [Message],
     sessionID: UUID,
@@ -54,25 +54,24 @@ public struct ChatAPI {
     onError: @escaping (Error) -> Void
   ) {
     
-    
-    onError(NSError(domain: "ChatAPI", code: 999, userInfo: [
-      NSLocalizedDescriptionKey: "This is a spoofed test error"
-    ]))
-    return
-    
     guard let settings = settings else {
-      onError(NSError(domain: "ChatAPI", code: 0, userInfo: [NSLocalizedDescriptionKey: "Settings not injected"]))
+      onError(NSError(domain: "ChatAPI", code: 0, userInfo: [
+        NSLocalizedDescriptionKey: "API Key not injected, retry in a minute"
+      ]))
       return
     }
-    
-    guard let url = URL(string: "https://api.openrouter.ai/v1/chat/completions") else {
-      onError(NSError(domain: "ChatAPI", code: 0, userInfo: [NSLocalizedDescriptionKey: "Invalid URL"]))
+
+    guard let url = URL(string: "https://openrouter.ai/api/v1/chat/completions") else {
+      onError(NSError(domain: "ChatAPI", code: 0, userInfo: [
+        NSLocalizedDescriptionKey: "Invalid URL"
+      ]))
       return
     }
 
     var request = URLRequest(url: url)
     request.httpMethod = "POST"
     request.addValue("Bearer \(settings.openrouter_api_key)", forHTTPHeaderField: "Authorization")
+    request.addValue("https://mirag.app", forHTTPHeaderField: "HTTP-Referrer")
     request.addValue("application/json", forHTTPHeaderField: "Content-Type")
 
     var messages: [[String: String]] = [
@@ -86,18 +85,18 @@ public struct ChatAPI {
       ])
     }
 
-//    messages.append(["role": "user", "content": newMessage])
-
     let payload: [String: Any] = [
-      "model": "auto",
+      "model": "mistralai/mistral-medium-3",
       "messages": messages,
       "stream": true
     ]
 
     do {
-      request.httpBody = try JSONSerialization.data(withJSONObject: payload, options: [])
+      request.httpBody = try JSONSerialization.data(withJSONObject: payload)
     } catch {
-      onError(error)
+      onError(NSError(domain: "ChatAPI", code: 0, userInfo: [
+        NSLocalizedDescriptionKey: "Failed to encode JSON payload"
+      ]))
       return
     }
 
@@ -105,28 +104,67 @@ public struct ChatAPI {
     let responseID = UUID()
 
     let task = URLSession.shared.dataTask(with: request) { data, response, error in
+      // Network errors — pass as-is
       if let error = error {
         onError(error)
         return
       }
-      guard let data = data else {
-        onError(NSError(domain: "ChatAPI", code: 0, userInfo: [NSLocalizedDescriptionKey: "No data returned"]))
+
+      // HTTP errors — create an Error because URLSession does not throw
+      if let httpResponse = response as? HTTPURLResponse, !(200..<300).contains(httpResponse.statusCode) {
+        let httpError = NSError(
+          domain: "ChatAPI",
+          code: httpResponse.statusCode,
+          userInfo: [NSLocalizedDescriptionKey: HTTPURLResponse.localizedString(forStatusCode: httpResponse.statusCode)]
+        )
+        onError(httpError)
         return
       }
 
-      do {
-        if let jsonArray = try JSONSerialization.jsonObject(with: data) as? [[String: Any]] {
-          for chunkObject in jsonArray {
-            if let content = chunkObject["delta"] as? String {
-              onChunk(content)
+      // No data
+      guard let data = data else {
+        onError(NSError(domain: "ChatAPI", code: 0, userInfo: [
+          NSLocalizedDescriptionKey: "No data returned from server."
+        ]))
+        return
+      }
+
+      // JSON parsing errors — pass as-is
+      Task {
+        do {
+          let (stream, response) = try await URLSession.shared.bytes(for: request)
+
+          guard let httpResponse = response as? HTTPURLResponse,
+                (200..<300).contains(httpResponse.statusCode) else {
+            let code = (response as? HTTPURLResponse)?.statusCode ?? 0
+            onError(NSError(domain: "ChatAPI", code: code, userInfo: [
+              NSLocalizedDescriptionKey: "Server returned HTTP \(code)"
+            ]))
+            return
+          }
+
+          var buffer = Data()
+          for try await byte in stream {
+            buffer.append(byte)
+
+            // Try to decode chunks from the buffer
+            if let chunkStr = String(data: buffer, encoding: .utf8) {
+              await MainActor.run {
+                onChunk(chunkStr)
+              }
+              buffer.removeAll()
             }
           }
-          onComplete(promptID, responseID)
-        } else {
-          onError(NSError(domain: "ChatAPI", code: 0, userInfo: [NSLocalizedDescriptionKey: "Invalid response format"]))
+
+          await MainActor.run {
+            onComplete(promptID, responseID)
+          }
+
+        } catch {
+          await MainActor.run {
+            onError(error)
+          }
         }
-      } catch {
-        onError(error)
       }
     }
     task.resume()

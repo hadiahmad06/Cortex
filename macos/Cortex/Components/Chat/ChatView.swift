@@ -64,8 +64,14 @@ struct ChatView: View {
             }
           }
         }
+    
         IncomingMessage(chatSessionContext: session)
           .padding(.bottom, 28)
+        
+        if let error = session.error {
+          ChatErrorView(error)
+            .padding(.vertical, 8)
+        }
       }
       .padding(20)
       .onAppear {
@@ -125,9 +131,12 @@ struct MessageFooterDupe: View {
 }
 
 #Preview {
+  let settings = SettingsManager()
+  let chatManager = ChatManager(settings: settings)
+
   ChatContainer(isOverlay: true)
-    .environmentObject(ChatManager())
-    .environmentObject(SettingsManager())
+    .environmentObject(chatManager)
+    .environmentObject(settings)
     .environmentObject(TutorialManager())
 }
 
