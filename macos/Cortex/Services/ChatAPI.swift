@@ -131,40 +131,62 @@ public struct ChatAPI {
 
       // JSON parsing errors — pass as-is
       Task {
-        do {
-          let (stream, response) = try await URLSession.shared.bytes(for: request)
+          do {
+              let (stream, response) = try await URLSession.shared.bytes(for: request)
 
-          guard let httpResponse = response as? HTTPURLResponse,
-                (200..<300).contains(httpResponse.statusCode) else {
-            let code = (response as? HTTPURLResponse)?.statusCode ?? 0
-            onError(NSError(domain: "ChatAPI", code: code, userInfo: [
-              NSLocalizedDescriptionKey: "Server returned HTTP \(code)"
-            ]))
-            return
-          }
-
-          var buffer = Data()
-          for try await byte in stream {
-            buffer.append(byte)
-
-            // Try to decode chunks from the buffer
-            if let chunkStr = String(data: buffer, encoding: .utf8) {
-              await MainActor.run {
-                onChunk(chunkStr)
+              guard let httpResponse = response as? HTTPURLResponse,
+                    (200..<300).contains(httpResponse.statusCode) else {
+                  let code = (response as? HTTPURLResponse)?.statusCode ?? 0
+                  onError(NSError(domain: "ChatAPI", code: code, userInfo: [
+                      NSLocalizedDescriptionKey: "Server returned HTTP \(code)"
+                  ]))
+                  return
               }
-              buffer.removeAll()
-            }
-          }
 
-          await MainActor.run {
-            onComplete(promptID, responseID)
-          }
+              var buffer = Data()
 
-        } catch {
-          await MainActor.run {
-            onError(error)
+              for try await byte in stream {
+                  buffer.append(byte)
+
+                  // Attempt to parse each complete "data: {...}" chunk immediately
+                  while true {
+                      guard let range = buffer.range(of: "data: ".data(using: .utf8)!) else { break }
+                      let chunkStart = range.upperBound
+
+                      // Find the next newline after "data: "
+                      guard let newlineRange = buffer[chunkStart...].firstRange(of: "\n".data(using: .utf8)!) else { break }
+                      let chunkData = buffer[chunkStart..<newlineRange.lowerBound]
+                      buffer.removeSubrange(buffer.startIndex..<newlineRange.upperBound)
+
+                      // Skip keep-alive signals or empty data
+                      if chunkData.isEmpty { continue }
+                      if let lineStr = String(data: chunkData, encoding: .utf8),
+                         lineStr != "[DONE]",
+                         let jsonObject = try? JSONSerialization.jsonObject(with: Data(lineStr.utf8)) as? [String: Any],
+                         let choices = jsonObject["choices"] as? [[String: Any]] {
+
+                          for choice in choices {
+                              if let delta = choice["delta"] as? [String: Any],
+                                 let content = delta["content"] as? String {
+                                  await MainActor.run {
+                                      onChunk(content) // send chunk immediately
+                                  }
+                              }
+                          }
+                      }
+                  }
+              }
+
+              // Finished streaming
+              await MainActor.run {
+                  onComplete(promptID, responseID)
+              }
+
+          } catch {
+              await MainActor.run {
+                  onError(error)
+              }
           }
-        }
       }
     }
     task.resume()
