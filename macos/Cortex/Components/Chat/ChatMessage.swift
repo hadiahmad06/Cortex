@@ -10,7 +10,7 @@ import SwiftUI
 struct ChatMessage: View {
   var msg: Message
   
-  private func safeMarkdown(_ text: String) -> AttributedString {
+  private func safeMarkdown(_ text: String) -> [MarkdownSegment] {
     var markdown = text
 
     // --- Code fences (``` … ```)
@@ -60,79 +60,89 @@ struct ChatMessage: View {
     return getMarkdown(markdown, text: text)
   }
   
-  private func getMarkdown(_ markdown: String, text: String) -> AttributedString {
-    // Parse Markdown safely
-    var attributed: AttributedString
-    do {
-      attributed = try AttributedString(
-        markdown: markdown,
-        options: .init(interpretedSyntax: .inlineOnlyPreservingWhitespace)
-      )
-    } catch {
-      attributed = AttributedString(text)
-    }
-    
-    // Style runs
-    for run in attributed.runs {
-      // Check for inline code
-      if run.inlinePresentationIntent == .code {
-          attributed[run.range].font = .system(.body, design: .monospaced)
-          attributed[run.range].backgroundColor = .gray.opacity(0.15)
-          attributed[run.range].foregroundColor = .white
-      }
-        
-        // Handle headers - macOS compatible approach
-      if let intent = run.presentationIntent {
-        // For macOS compatibility: check if it's a heading
-        for component in intent.components {
-          switch component.kind {
-          case .header(let level):
-            switch level {
-            case 1:
-              attributed[run.range].font = .system(size: 22, weight: .bold)
-            case 2:
-              attributed[run.range].font = .system(size: 20, weight: .semibold)
-            case 3:
-              attributed[run.range].font = .system(size: 18, weight: .medium)
-            case 4:
-              attributed[run.range].font = .system(size: 16, weight: .medium)
-            case 5:
-              attributed[run.range].font = .system(size: 14, weight: .medium)
-            case 6:
-              attributed[run.range].font = .system(size: 12, weight: .medium)
-            default:
-              break
-            }
-          default:
-            break
+  private func getMarkdown(_ markdown: String, text: String) -> [MarkdownSegment] {
+      var segments: [MarkdownSegment] = []
+      let parts = markdown.components(separatedBy: "```")
+      
+      for (index, part) in parts.enumerated() {
+          if index % 2 == 1 {
+              // Odd indices = inside fenced code
+              segments.append(.codeBlock(part.trimmingCharacters(in: .whitespacesAndNewlines)))
+          } else {
+              // Even indices = normal markdown (may contain inline code)
+              do {
+                  let attributed = try AttributedString(
+                      markdown: part,
+                      options: .init(interpretedSyntax: .inlineOnlyPreservingWhitespace)
+                  )
+                  var buffer = AttributedString()
+
+                  for run in attributed.runs {
+                      if run.inlinePresentationIntent == .code {
+                          // Flush any buffered text before code
+                          if !buffer.characters.isEmpty {
+                              segments.append(.text(buffer))
+                              buffer = AttributedString()
+                          }
+                          
+                          let codeText = String(attributed[run.range].characters)
+                          segments.append(.inlineCode(codeText))
+                      } else {
+                          // Add this run’s text into the buffer
+                          buffer += AttributedString(attributed[run.range])
+                      }
+                  }
+
+                  // Flush remaining text
+                  if !buffer.characters.isEmpty {
+                      segments.append(.text(buffer))
+                  }
+              } catch {
+                  segments.append(.text(AttributedString(part)))
+              }
           }
+      }
+      
+      return segments
+  }
+  
+  var renderedSegments: [AnyView] {
+    var segments: [AnyView] = []
+    var buffer = AttributedString()
+    for segment in getMarkdown(msg.text, text: msg.text) {
+      switch segment {
+      case .text(let attributed):
+          buffer += attributed
+      case .inlineCode(let code):
+          buffer += AttributedString("`\(code)`")
+      case .codeBlock(let codeText):
+        if !buffer.characters.isEmpty {
+          segments.append(AnyView(
+            Text(buffer)
+              .foregroundColor(.white.opacity(0.75))
+              .padding(.vertical, 6)
+              .padding(.horizontal, msg.isUser ? 12 : 0)
+              .background(msg.isUser ? .white.opacity(0.15) : .clear)
+              .cornerRadius(msg.isUser ? 16 : 0)
+              .frame(maxWidth: .infinity, alignment: msg.isUser ? .trailing : .leading)
+          ))
+          buffer = AttributedString()
         }
-      }
-        
-      // Bold
-      if run.inlinePresentationIntent == .stronglyEmphasized {
-        attributed[run.range].font = .system(.body, weight: .bold)
-      }
-      
-      // Italic
-      if run.inlinePresentationIntent == .emphasized {
-        attributed[run.range].font = .system(.body).italic()
-      }
-      
-      // Strikethrough
-      if run.inlinePresentationIntent == .strikethrough {
-        attributed[run.range].strikethroughStyle = .single
-        attributed[run.range].strikethroughColor = .red//.opacity(0.8)
-      }
-      
-      // Links
-      if let link = run.link {
-        attributed[run.range].foregroundColor = .blue
-        attributed[run.range].underlineStyle = .single
+        segments.append(AnyView(CodeBlockView(code: codeText)))
       }
     }
-    
-    return attributed
+    if !buffer.characters.isEmpty {
+        segments.append(AnyView(
+          Text(buffer)
+            .foregroundColor(.white.opacity(0.75))
+            .padding(.vertical, 6)
+            .padding(.horizontal, msg.isUser ? 12 : 0)
+            .background(msg.isUser ? .white.opacity(0.15) : .clear)
+            .cornerRadius(msg.isUser ? 16 : 0)
+            .frame(maxWidth: .infinity, alignment: msg.isUser ? .trailing : .leading)
+        ))
+      }
+      return segments
   }
   
   var body: some View {
@@ -140,17 +150,13 @@ struct ChatMessage: View {
       HStack {
         if msg.isUser {
           Spacer()
-          Text(safeMarkdown(msg.text))
-            .padding(.vertical, 6)
-            .padding(.horizontal, 12)
-            .background(.white.opacity(0.15))
-            .foregroundColor(.white.opacity(0.75))
-            .cornerRadius(16)
-        } else {
-          Text(safeMarkdown(msg.text))
-            .padding(.vertical, 6)
-            .foregroundColor(.white.opacity(0.75))
-            .frame(maxWidth: .infinity, alignment: .leading)
+        }
+        VStack(alignment: .leading, spacing: 0) {
+          ForEach(0..<renderedSegments.count, id: \.self) { i in
+            renderedSegments[i]
+          }
+        }
+        if !msg.isUser {
           Spacer()
         }
       }
