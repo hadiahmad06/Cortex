@@ -8,9 +8,11 @@
 import SwiftUI
 
 enum MarkdownSegment {
-    case text(AttributedString)
-    case inlineCode(String)
-    case codeBlock(String)
+  case text(AttributedString)
+  case inlineCode(String)
+  case codeBlock(String)
+  case header(level: Int, text: AttributedString)
+  case lineBreak
 }
 
 struct CodeBlockView: View {
