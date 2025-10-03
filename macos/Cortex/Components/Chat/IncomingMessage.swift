@@ -46,14 +46,15 @@ struct IncomingMessage: View {
           }
         }
       } else if isTyping && !isEmpty {
-        HStack {
-          Text(text)
-            .padding(.vertical, 6)
-            .foregroundColor(.white.opacity(0.75))
-            .frame(alignment: .leading)
-            .animation(.linear(duration: 0.1), value: text)
-          Spacer()
+        let (segments, isInlineOnly) = MarkdownRenderer.render(text, incoming: true)
+        VStack(alignment: .leading, spacing: 0) {
+          ForEach(0..<segments.count, id: \.self) { i in
+            segments[i]
+          }
         }
+        .background(.clear)
+        .frame(maxWidth: .infinity, alignment: .leading)
+        Spacer()
       }
     } else {
       EmptyView()
