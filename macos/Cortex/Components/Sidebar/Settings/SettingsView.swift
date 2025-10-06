@@ -62,6 +62,10 @@ struct SettingsView: View {
               isClickable: true
             )
           }
+          
+          SettingsSection(title: "Saved Models") {
+            ModelSearchView()
+          }
         }
       }
     }

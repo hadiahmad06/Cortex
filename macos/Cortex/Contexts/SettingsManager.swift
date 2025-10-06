@@ -12,6 +12,9 @@ import Combine
 struct AppSettings: Codable {
   // API Keys
   var openrouter_api_key: String = ""
+  
+  // Model
+  var savedModels: [OpenRouterModel] = []
 
   // Chat Limits
   var chatHistoryLength: Int = 3
