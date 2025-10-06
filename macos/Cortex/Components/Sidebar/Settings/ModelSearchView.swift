@@ -25,7 +25,7 @@ struct ModelSearchView: View {
     VStack {
       // MARK: NO SAVED MODELS
       if let error = error {
-        VStack(spacing: 8) {
+        VStack(spacing: 6) {
           Spacer()
           Text("Network Error")
             .font(.system(size: 20, weight: .medium))
@@ -37,11 +37,16 @@ struct ModelSearchView: View {
         }
         .padding(.horizontal, 12)
       } else if (searchText.isEmpty && settings.settings.savedModels.isEmpty) {
-        Spacer()
-        Text("No Saved Models")
-          .font(.system(size: 18, weight: .medium))
-          .foregroundColor(.white.opacity(0.6))
-          .padding()
+        VStack(spacing: 6) {
+          Spacer()
+          Text("No Saved Models")
+            .font(.system(size: 20, weight: .medium))
+            .foregroundColor(.white.opacity(0.6))
+          Text("OpenRouter will pick a model automatically")
+            .font(.system(size: 12, weight: .light))
+            .foregroundColor(.white.opacity(0.6))
+          Spacer()
+        }
       } else {
         ScrollView(.vertical) {
           HStackWrapped(spacingX: 8, spacingY: 6) {
@@ -67,6 +72,11 @@ struct ModelSearchView: View {
                 let selected = currPreview == model.id
                 Button(action: {
                   currPreview = selected ? nil : model.id
+                  if let _ = settings.previewedModel, settings.previewedModel!.id == model.id {
+                    settings.previewedModel = nil
+                  } else {
+                    settings.previewedModel = model
+                  }
                 }) {
                   Text(model.name)
                     .font(.system(size: 12, weight: .medium))
@@ -77,6 +87,13 @@ struct ModelSearchView: View {
                     .clipShape(Capsule())
                 }
                 .buttonStyle(PlainButtonStyle())
+                .onHover { hovering in
+                  if hovering {
+                    settings.hoveredModel = model
+                  } else {
+                    settings.hoveredModel = nil
+                  }
+                }
               }
             }
           }
@@ -90,8 +107,8 @@ struct ModelSearchView: View {
           Image(systemName: "magnifyingglass")
             .font(.system(size: 12))
             .frame(width: 22, height: 22)
-            .background(Color.white.opacity(0.15))
-            .cornerRadius(isFocused ? 12 : 8)
+            .background(Color.white.opacity(0.1))
+            .cornerRadius(isFocused ? 8 : 12)
           TextField("Search models...", text: $searchText)
             .textFieldStyle(PlainTextFieldStyle())
             .focused($isFocused)
@@ -109,13 +126,13 @@ struct ModelSearchView: View {
         }
         .padding(.horizontal, 8)
         .padding(.vertical, 5)
-        .background(Color.white.opacity(0.1))
-        .cornerRadius(isFocused ? 16 : 10)
+        .background(Color.white.opacity(0.05))
+        .cornerRadius(isFocused ? 10 : 16)
       }
       .padding(.bottom, 12)
       .padding(.horizontal, 12)
     }
-    .background(Color.white.opacity(0.1))
+    .background(Color.white.opacity(0.05))
     .cornerRadius(16)
     .frame(height: isExpanded ? 650 : 200)
     .onChange(of: searchText) { _, newValue in

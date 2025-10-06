@@ -64,7 +64,14 @@ struct SettingsView: View {
           }
           
           SettingsSection(title: "Saved Models") {
-            ModelSearchView()
+            VStack(spacing: 8) {
+              ModelSearchView()
+              if(manager.hoveredModel != nil) {
+                ModelPreview($manager.hoveredModel)
+              } else if (manager.previewedModel != nil) {
+                ModelPreview($manager.previewedModel)
+              }
+            }
           }
         }
       }

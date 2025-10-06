@@ -106,3 +106,64 @@ struct OpenRouterModel: Codable, Identifiable {
     case defaultParameters = "default_parameters"
   }
 }
+
+extension OpenRouterModel {
+  static let exampleModel = OpenRouterModel(
+      id: "openai/gpt-5-codex",
+      name: "OpenAI: GPT-5 Codex",
+      created: 1_758_643_403,
+      description: """
+  GPT-5-Codex is a specialized version of GPT-5 optimized for software engineering and coding workflows. \
+  It is designed for both interactive development sessions and long, independent execution of complex engineering tasks. \
+  The model supports building projects from scratch, feature development, debugging, large-scale refactoring, and code review. \
+  Compared to GPT-5, Codex is more steerable, adheres closely to developer instructions, and produces cleaner, higher-quality code outputs. \
+  Reasoning effort can be adjusted with the `reasoning.effort` parameter. Read the [docs here](https://openrouter.ai/docs/use-cases/reasoning-tokens#reasoning-effort-level).
+
+  Codex integrates into developer environments including the CLI, IDE extensions, GitHub, and cloud tasks. \
+  It adapts reasoning effort dynamically—providing fast responses for small tasks while sustaining extended multi-hour runs for large projects. \
+  The model is trained to perform structured code reviews, catching critical flaws by reasoning over dependencies and validating behavior against tests. \
+  It also supports multimodal inputs such as images or screenshots for UI development and integrates tool use for search, dependency installation, and environment setup. \
+  Codex is intended specifically for agentic coding applications.
+  """,
+      architecture: .init(
+          inputModalities: ["text", "image"],
+          outputModalities: ["text"],
+          tokenizer: "GPT",
+          instructType: nil
+      ),
+      topProvider: .init(
+          isModerated: true,
+          contextLength: 400_000,
+          maxCompletionTokens: 128_000
+      ),
+      pricing: .init(
+          prompt: "0.00000125",
+          completion: "0.00001",
+          image: "0",
+          request: "0",
+          webSearch: "0",
+          internalReasoning: "0",
+          inputCacheRead: "0.000000125",
+          inputCacheWrite: nil
+      ),
+      canonicalSlug: "openai/gpt-5-codex",
+      contextLength: 400_000,
+      huggingFaceId: "",
+      perRequestLimits: nil,
+      supportedParameters: [
+          "include_reasoning",
+          "max_tokens",
+          "reasoning",
+          "response_format",
+          "seed",
+          "structured_outputs",
+          "tool_choice",
+          "tools"
+      ],
+      defaultParameters: .init(
+          temperature: nil,
+          topP: nil,
+          frequencyPenalty: nil
+      )
+  )
+}
