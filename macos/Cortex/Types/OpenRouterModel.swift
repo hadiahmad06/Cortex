@@ -9,17 +9,17 @@
 struct OpenRouterModel: Codable, Identifiable {
   let id: String
   let name: String
-  let created: Int
+  let created: Double
   let description: String?
   let architecture: Architecture
   let topProvider: TopProvider
   let pricing: Pricing
-  let canonicalSlug: String
-  let contextLength: Int
+  let canonicalSlug: String?
+  let contextLength: Int?
   let huggingFaceId: String?
   let perRequestLimits: [String: Int]?
-  let supportedParameters: [String]
-  let defaultParameters: DefaultParameters
+  let supportedParameters: [String]?
+  let defaultParameters: DefaultParameters?
   
   struct Architecture: Codable {
     let inputModalities: [String]
@@ -37,8 +37,8 @@ struct OpenRouterModel: Codable, Identifiable {
   
   struct TopProvider: Codable {
     let isModerated: Bool
-    let contextLength: Int
-    let maxCompletionTokens: Int
+    let contextLength: Double?
+    let maxCompletionTokens: Double?
     
     enum CodingKeys: String, CodingKey {
       case isModerated = "is_moderated"
@@ -50,21 +50,21 @@ struct OpenRouterModel: Codable, Identifiable {
   struct Pricing: Codable {
     let prompt: String
     let completion: String
-    let image: String
+    let image: String? // should be non-optional
     let request: String
     let webSearch: String
     let internalReasoning: String
-    let inputCacheRead: String
-    let inputCacheWrite: String
+    let inputCacheRead: String?
+    let inputCacheWrite: String?
     
     var promptValue: Double? { Double(prompt) }
     var completionValue: Double? { Double(completion) }
-    var imageValue: Double? { Double(image) }
+    var imageValue: Double? { image.flatMap(Double.init) }
     var requestValue: Double? { Double(request) }
     var webSearchValue: Double? { Double(webSearch) }
     var internalReasoningValue: Double? { Double(internalReasoning) }
-    var inputCacheReadValue: Double? { Double(inputCacheRead) }
-    var inputCacheWriteValue: Double? { Double(inputCacheWrite) }
+    var inputCacheReadValue: Double? { inputCacheRead.flatMap(Double.init) }
+    var inputCacheWriteValue: Double? { inputCacheWrite.flatMap(Double.init) }
     
     enum CodingKeys: String, CodingKey {
       case prompt
@@ -79,9 +79,9 @@ struct OpenRouterModel: Codable, Identifiable {
   }
   
   struct DefaultParameters: Codable {
-    let temperature: Double
-    let topP: Double
-    let frequencyPenalty: Int
+    let temperature: Double?
+    let topP: Double?
+    let frequencyPenalty: Double?
     
     enum CodingKeys: String, CodingKey {
       case temperature

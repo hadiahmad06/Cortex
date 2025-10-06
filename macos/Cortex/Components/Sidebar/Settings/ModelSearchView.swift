@@ -17,10 +17,26 @@ struct ModelSearchView: View {
   @State private var searchText: String = ""
   @FocusState private var isFocused: Bool
   
+//  @State var showInfoToggle: Bool = false
+  
+  @State var error: Error? = nil
+  
   var body: some View {
     VStack {
       // MARK: NO SAVED MODELS
-      if (searchText.isEmpty && settings.settings.savedModels.isEmpty) {
+      if let error = error {
+        VStack(spacing: 8) {
+          Spacer()
+          Text("Network Error")
+            .font(.system(size: 20, weight: .medium))
+            .foregroundColor(.white.opacity(0.6))
+          Text(error.localizedDescription)
+            .font(.system(size: 12, weight: .light))
+            .foregroundColor(.white.opacity(0.6))
+          Spacer()
+        }
+        .padding(.horizontal, 12)
+      } else if (searchText.isEmpty && settings.settings.savedModels.isEmpty) {
         Spacer()
         Text("No Saved Models")
           .font(.system(size: 18, weight: .medium))
@@ -79,6 +95,17 @@ struct ModelSearchView: View {
           TextField("Search models...", text: $searchText)
             .textFieldStyle(PlainTextFieldStyle())
             .focused($isFocused)
+//          IconButton(
+//            systemName: showInfoToggle ? "info.circle.fill" : "info",
+//            action: OverlayWindowController.shared.toggle,
+//            isToggled: $showInfoToggle,
+//            tooltip: "Toggle to show more info on press",
+//            help: showInfoToggle
+//              ? "Press to save immediately on press"
+//              : "Press to show more info on press",
+//            size: 24,
+//            fontSize: 14
+//          )
         }
         .padding(.horizontal, 8)
         .padding(.vertical, 5)
@@ -91,9 +118,23 @@ struct ModelSearchView: View {
     .background(Color.white.opacity(0.1))
     .cornerRadius(16)
     .frame(height: isExpanded ? 650 : 200)
-    //    .onChange(of: searchText) { _, newValue in
-    //      searchResults = modelNames.filter { $0.localizedCaseInsensitiveContains(newValue) }
-    //    }
+    .onChange(of: searchText) { _, newValue in
+      self.error = nil
+      ModelSearchAPI.fetchModels(
+        apiKey: settings.settings.openrouter_api_key,
+        filters: ModelFilterSettings(search: newValue)
+      ) { result in
+        DispatchQueue.main.async {
+          switch result {
+          case .success(let models):
+            searchResults = models
+          case .failure(let error):
+            self.error = error
+            searchResults = []
+          }
+        }
+      }
+    }
   }
 }
 
