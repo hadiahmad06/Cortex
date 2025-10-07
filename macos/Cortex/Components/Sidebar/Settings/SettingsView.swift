@@ -12,7 +12,9 @@ import SwiftUI
 struct SettingsView: View {
   @EnvironmentObject var manager: SettingsManager
   @EnvironmentObject var tutorial: TutorialManager
-
+  
+  @State private var model: OpenRouterModel? = nil
+  
   var body: some View {
     VStack {
       ScrollView {
@@ -51,9 +53,9 @@ struct SettingsView: View {
                 apiKey: $manager.settings.openrouter_api_key
               )
             })
-//            SettingsRow(title: "Appearance")
+            //            SettingsRow(title: "Appearance")
           }
-//          
+          //
           SettingsSection(title: "Tutorial") {
             SettingsRow(
               title: "Reset Tutorial",
@@ -66,19 +68,16 @@ struct SettingsView: View {
           SettingsSection(title: "Saved Models") {
             VStack(spacing: 8) {
               ModelSearchView()
-              if(manager.hoveredModel != nil) {
-                ModelPreview($manager.hoveredModel)
-              } else if (manager.previewedModel != nil) {
-                ModelPreview($manager.previewedModel)
-              }
+              ModelPreviewHandler(hoveredModelId: manager.hoveredModelId, previewedModelId: manager.previewedModelId)
             }
           }
         }
       }
+      .scrollIndicators(.hidden)
     }
     .padding(.horizontal, 12)
-//    .scrollContentBackground(.hidden)
-//    .listRowBackground(Color.clear)
+    //    .scrollContentBackground(.hidden)
+    //    .listRowBackground(Color.clear)
     .frame(maxWidth: .infinity, maxHeight: .infinity)
   }
 }
@@ -101,8 +100,8 @@ struct SettingsSection<Content: View>: View {
         .padding(.top, 8)
         .padding(.bottom, 4)
       content
-//      Divider()
-//        .padding(.top, 6)
+      //      Divider()
+      //        .padding(.top, 6)
     }
     .background(Color.clear)
   }
@@ -165,7 +164,7 @@ struct SettingsDefaults {
 #Preview {
   let settings = SettingsManager()
   let chatManager = ChatManager(settings: settings)
-
+  
   SettingsView()
     .environmentObject(chatManager)
     .environmentObject(settings)

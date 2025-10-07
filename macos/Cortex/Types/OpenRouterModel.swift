@@ -5,6 +5,14 @@
 //  Created by Hadi Ahmad on 10/3/25.
 //
 
+struct ModelTuple: Codable, Equatable {
+  let id: String
+  let name: String
+
+  static func == (lhs: ModelTuple, rhs: ModelTuple) -> Bool {
+    return lhs.id == rhs.id
+  }
+}
 
 struct OpenRouterModel: Codable, Identifiable {
   let id: String

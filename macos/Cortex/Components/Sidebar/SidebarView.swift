@@ -12,7 +12,9 @@ struct SidebarView: View {
   @Binding var isSidebarOpen: Bool
   
   @State var sidebarWidth: CGFloat = 350
+  @State var settingsWidth: CGFloat = 350
   private let minSidebarWidth: CGFloat = 200
+  private let minSettingsWidth: CGFloat = 350
   private let maxSidebarWidth: CGFloat = 600
   
   @State var selectedTab: String = "history"
@@ -43,7 +45,7 @@ struct SidebarView: View {
     }
     .padding(.horizontal, 10)
     .background(Color.black.opacity(0.10))
-    .frame(maxWidth: sidebarWidth, maxHeight: .infinity)
+    .frame(maxWidth: (selectedTab == "settings" ? settingsWidth : sidebarWidth), maxHeight: .infinity)
     
     Rectangle()
       .fill(Color.clear)
@@ -52,15 +54,27 @@ struct SidebarView: View {
       .gesture(
         DragGesture()
           .onChanged { value in
-            let newWidth = sidebarWidth + value.translation.width
-            if(newWidth + 150 < minSidebarWidth) {
-              isSidebarOpen = false
+            let newWidth = (selectedTab == "settings" ? settingsWidth : sidebarWidth) + value.translation.width
+            if selectedTab == "settings" {
+              if newWidth >= minSettingsWidth && newWidth <= maxSidebarWidth {
+                if(newWidth + 150 < minSettingsWidth) {
+                  isSidebarOpen = false
+                } else {
+                  isSidebarOpen = true
+                }
+                settingsWidth = newWidth
+              }
             } else {
-              isSidebarOpen = true
+              if(newWidth + 150 < minSidebarWidth) {
+                isSidebarOpen = false
+              } else {
+                isSidebarOpen = true
+              }
+              if newWidth >= minSidebarWidth && newWidth <= maxSidebarWidth {
+                sidebarWidth = newWidth
+              }
             }
-            if newWidth >= minSidebarWidth && newWidth <= maxSidebarWidth {
-              sidebarWidth = newWidth
-            }
+            
           }
       )
       .onHover { hovering in

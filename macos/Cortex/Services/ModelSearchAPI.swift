@@ -15,7 +15,7 @@ struct ModelFilterSettings {
 }
 
 struct ModelSearchAPI {
-  static var availableModelsCache: [OpenRouterModel] = []
+  static var availableModelsCache: [String: OpenRouterModel] = [:]
   
   private static func fuzzyMatch(_ query: String, in text: String) -> Bool {
     let pattern = query.map { NSRegularExpression.escapedPattern(for: String($0)) }.joined(separator: ".*")
@@ -81,7 +81,10 @@ struct ModelSearchAPI {
           
           print("Request to \(urlString) succeeded with \(validModels.count) valid models")
           DispatchQueue.main.async {
-            self.availableModelsCache = validModels
+            self.availableModelsCache = Dictionary(uniqueKeysWithValues: validModels.map { model in
+              let key = model.id
+              return (key, model)
+            })
             completion(.success(validModels))
           }
           return
@@ -99,10 +102,10 @@ struct ModelSearchAPI {
     }
   }
   
-  static func fetchModels(
+  static func searchModels(
     apiKey: String?,
     filters: ModelFilterSettings,
-    completion: @escaping (Result<[OpenRouterModel], Error>) -> Void
+    completion: @escaping (Result<[ModelTuple], Error>) -> Void
   ) {
     func applyFuzzySearch(_ models: [OpenRouterModel]) -> [OpenRouterModel] {
       guard let query = filters.search, !query.isEmpty else { return models }
@@ -119,9 +122,9 @@ struct ModelSearchAPI {
 
     if !self.availableModelsCache.isEmpty {
       print("Using cached models")
-      let filtered = applyFuzzySearch(availableModelsCache)
+      let filtered = applyFuzzySearch(Array(availableModelsCache.values))
       print("Returning \(filtered.count) models after filtering")
-      completion(.success(filtered))
+      completion(.success(filtered.map( { ModelTuple(id: $0.id, name: $0.name) } )))
     } else {
       print("No cached models, fetching from API")
       fetchFromAPI(apiKey: apiKey, filters: filters) { result in
@@ -129,7 +132,7 @@ struct ModelSearchAPI {
         case .success(let models):
           let filtered = applyFuzzySearch(models)
           print("Returning \(filtered.count) models after filtering")
-          completion(.success(filtered))
+          completion(.success(filtered.map( { ModelTuple(id: $0.id, name: $0.name) } )))
         case .failure(let error):
           print("Failed to fetch models from API with error: \(error)")
           completion(.failure(error))
@@ -137,5 +140,56 @@ struct ModelSearchAPI {
       }
     }
     return
+  }
+  
+  /// Returns all models from the cache whose id is in the given array.
+  static func fetchModel(id: String, complete: @escaping (OpenRouterModel?) -> Void) {
+    // Step 1: Check cache
+    // NOT NECESSARY, but safe to use this method without checking cached, for a latency cost
+    if let cachedModel = availableModelsCache[id] {
+      complete(cachedModel)
+      return
+    }
+    
+    // Step 2: Fetch from API
+    let urlString = "https://openrouter.ai/api/v1/models/\(id)/endpoints"
+    guard let url = URL(string: urlString) else {
+      complete(nil)
+      return
+    }
+    
+    let task = URLSession.shared.dataTask(with: url) { data, _, error in
+      if let error = error {
+        print("Failed to fetch model \(id): \(error)")
+        DispatchQueue.main.async { complete(nil) }
+        return
+      }
+      
+      guard let data = data else {
+        DispatchQueue.main.async { complete(nil) }
+        return
+      }
+      
+      do {
+        let jsonObject = try JSONSerialization.jsonObject(with: data, options: [])
+        guard let dict = jsonObject as? [String: Any],
+              let dataDict = dict["data"] else {
+          DispatchQueue.main.async { complete(nil) }
+          return
+        }
+        let modelData = try JSONSerialization.data(withJSONObject: dataDict, options: [])
+        let model = try JSONDecoder().decode(OpenRouterModel.self, from: modelData)
+        // Cache it
+        DispatchQueue.main.async {
+          availableModelsCache[id] = model
+          complete(model)
+        }
+      } catch {
+        print("Decoding error for model \(id): \(error)")
+        DispatchQueue.main.async { complete(nil) }
+      }
+    }
+    
+    task.resume()
   }
 }

@@ -13,11 +13,12 @@ struct ModelSearchView: View {
   @State var isExpanded: Bool = false
   @State var currPreview: String? = nil
   
-  @State var searchResults: [OpenRouterModel] = []
+  @State var searchResults: [ModelTuple] = []
+  
   @State private var searchText: String = ""
   @FocusState private var isFocused: Bool
   
-//  @State var showInfoToggle: Bool = false
+  //  @State var showInfoToggle: Bool = false
   
   @State var error: Error? = nil
   
@@ -65,35 +66,39 @@ struct ModelSearchView: View {
               }
             } else {
               let pills =
-              settings.settings.savedModels.isEmpty
+              !searchText.isEmpty
               ? searchResults
               : settings.settings.savedModels
               ForEach(pills, id: \.id) { model in
-                let selected = currPreview == model.id
-                Button(action: {
-                  currPreview = selected ? nil : model.id
-                  if let _ = settings.previewedModel, settings.previewedModel!.id == model.id {
-                    settings.previewedModel = nil
-                  } else {
-                    settings.previewedModel = model
+                let saved = settings.settings.savedModels.contains(model)
+                Text(model.name)
+                  .font(.system(size: 12, weight: .medium))
+                  .padding(.vertical, 5)
+                  .padding(.horizontal, 9)
+                  .background(saved ? Color.accentColor.opacity(0.3): Color.white.opacity(0.2))
+                  .foregroundColor(.white)
+                  .clipShape(Capsule())
+                  .onHover { hovering in
+                    if hovering {
+                      settings.hoveredModelId = model.id
+                    } else {
+                      settings.hoveredModelId = nil
+                    }
                   }
-                }) {
-                  Text(model.name)
-                    .font(.system(size: 12, weight: .medium))
-                    .padding(.vertical, 5)
-                    .padding(.horizontal, 9)
-                    .background(selected ? Color.accentColor.opacity(0.3): Color.white.opacity(0.2))
-                    .foregroundColor(.white)
-                    .clipShape(Capsule())
-                }
-                .buttonStyle(PlainButtonStyle())
-                .onHover { hovering in
-                  if hovering {
-                    settings.hoveredModel = model
-                  } else {
-                    settings.hoveredModel = nil
+                  .onTapGesture {
+                    if settings.previewedModelId != model.id {
+                      if saved {
+                        settings.settings.savedModels.removeAll { $0.id == model.id }
+                        if let id = settings.previewedModelId, model.id == id {
+//                          MARK: IDK WHY THE FUCK THIS NEXT LINE BREAKS EVERYTHING
+//                          settings.previewedModelId = nil
+                        }
+                      } else {
+                        settings.settings.savedModels.append(model)
+                        settings.previewedModelId = model.id
+                      }
+                    }
                   }
-                }
               }
             }
           }
@@ -112,17 +117,17 @@ struct ModelSearchView: View {
           TextField("Search models...", text: $searchText)
             .textFieldStyle(PlainTextFieldStyle())
             .focused($isFocused)
-//          IconButton(
-//            systemName: showInfoToggle ? "info.circle.fill" : "info",
-//            action: OverlayWindowController.shared.toggle,
-//            isToggled: $showInfoToggle,
-//            tooltip: "Toggle to show more info on press",
-//            help: showInfoToggle
-//              ? "Press to save immediately on press"
-//              : "Press to show more info on press",
-//            size: 24,
-//            fontSize: 14
-//          )
+          //          IconButton(
+          //            systemName: showInfoToggle ? "info.circle.fill" : "info",
+          //            action: OverlayWindowController.shared.toggle,
+          //            isToggled: $showInfoToggle,
+          //            tooltip: "Toggle to show more info on press",
+          //            help: showInfoToggle
+          //              ? "Press to save immediately on press"
+          //              : "Press to show more info on press",
+          //            size: 24,
+          //            fontSize: 14
+          //          )
         }
         .padding(.horizontal, 8)
         .padding(.vertical, 5)
@@ -137,7 +142,7 @@ struct ModelSearchView: View {
     .frame(height: isExpanded ? 650 : 200)
     .onChange(of: searchText) { _, newValue in
       self.error = nil
-      ModelSearchAPI.fetchModels(
+      ModelSearchAPI.searchModels(
         apiKey: settings.settings.openrouter_api_key,
         filters: ModelFilterSettings(search: newValue)
       ) { result in

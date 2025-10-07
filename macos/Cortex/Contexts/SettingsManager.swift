@@ -14,7 +14,9 @@ struct AppSettings: Codable {
   var openrouter_api_key: String = ""
   
   // Model
-  var savedModels: [OpenRouterModel] = []
+  var savedModels: [ModelTuple] = []
+  var showPreviewDescription: Bool = false
+  var perTokenCount: Double = 1_000_000
   
   // Chat Limits
   var chatHistoryLength: Int = 3
@@ -54,8 +56,8 @@ struct AppSettings: Codable {
 class SettingsManager: ObservableObject {
   
   @Published var settings = AppSettings()
-  @Published var previewedModel: OpenRouterModel? = nil // last pressed model
-  @Published var hoveredModel: OpenRouterModel? = nil
+  @Published var previewedModelId: String? = nil // last pressed model
+  @Published var hoveredModelId: String? = nil
   
   private var cancellables = Set<AnyCancellable>()
   private let key = "app_settings"

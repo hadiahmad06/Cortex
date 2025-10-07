@@ -7,18 +7,15 @@
 
 import SwiftUI
 
+
+// MARK: ModelPreview is DUMB to changes in preview and hovered model ids
 struct ModelPreview: View {
   @Binding var model: OpenRouterModel?
-  @State private var showDescription = false
-  
-  @State private var perTokenCount: Double = 1_000_000
-  
-  init(_ model: Binding<OpenRouterModel?>) {
-    self._model = model
-  }
+  @Binding var showDescription: Bool
+  @Binding var perTokenCount: Double
   
   var body: some View {
-    ScrollView {
+    VStack {
       if let model = model {
         VStack(alignment: .leading, spacing: 8) {
           // MARK: TITLE, LINK, DATE of CREATION
@@ -229,23 +226,6 @@ struct ModelPreview: View {
               if let topP = params.topP { Text("Top P: \(topP)") }
               if let freq = params.frequencyPenalty { Text("Frequency Penalty: \(freq)") }
             }
-            
-//            Divider()
-//
-//            if let slug = model.canonicalSlug { Text("Canonical Slug: \(slug)") }
-//            if let context = model.contextLength { Text("Context Length: \(context)") }
-//            if let hfId = model.huggingFaceId { Text("Hugging Face ID: \(hfId)") }
-//
-//            if let limits = model.perRequestLimits {
-//              Text("Per Request Limits:").bold()
-//              ForEach(limits.keys.sorted(), id: \.self) { key in
-//                Text("\(key): \(limits[key] ?? 0)")
-//              }
-//            }
-//
-//            if let supported = model.supportedParameters {
-//              Text("Supported Parameters: \(supported.joined(separator: ", "))")
-//            }
           }
           .padding(.horizontal, 12)
         }
@@ -253,7 +233,124 @@ struct ModelPreview: View {
         .background(.white.opacity(0.05))
         .cornerRadius(12)
       } else {
-        Text("No model selected").foregroundColor(.gray)
+        // Skeleton placeholder for loading state
+        VStack(alignment: .leading, spacing: 8) {
+          VStack(alignment: .leading, spacing: 2) {
+            // Title, date, link row
+            HStack {
+              Rectangle()
+                .fill(Color.gray.opacity(0.3))
+                .frame(width: 120, height: 20)
+                .cornerRadius(4)
+              Spacer()
+              Rectangle()
+                .fill(Color.gray.opacity(0.3))
+                .frame(width: 80, height: 16)
+                .cornerRadius(10)
+            }
+            .padding(.horizontal, 5)
+            
+            Rectangle()
+              .fill(Color.gray.opacity(0.3))
+              .frame(width: 100, height: 12)
+              .cornerRadius(9)
+              .padding(.vertical, 4)
+              .padding(.horizontal, 8)
+          }
+          .padding(.horizontal, 7)
+          
+          VStack(alignment: .leading, spacing: 8) {
+            
+            Divider()
+            
+            // Architecture table placeholders
+            let columns = [
+              GridItem(.flexible(), alignment: .leading),
+              GridItem(.flexible(), alignment: .leading),
+              GridItem(.flexible(), alignment: .leading)
+            ]
+            
+            LazyVGrid(columns: columns, alignment: .leading, spacing: 6) {
+              // Header row placeholders
+              Rectangle()
+                .fill(Color.gray.opacity(0.3))
+                .frame(height: 16)
+                .cornerRadius(4)
+              Rectangle()
+                .fill(Color.gray.opacity(0.3))
+                .frame(height: 16)
+                .cornerRadius(4)
+              Rectangle()
+                .fill(Color.gray.opacity(0.3))
+                .frame(height: 16)
+                .cornerRadius(4)
+              
+              // Input modalities placeholder
+              HStack(spacing: 4) {
+                ForEach(0..<3) { _ in
+                  Capsule()
+                    .fill(Color.gray.opacity(0.3))
+                    .frame(width: 20, height: 20)
+                }
+              }
+              
+              // Output modalities placeholder
+              HStack(spacing: 4) {
+                ForEach(0..<3) { _ in
+                  Capsule()
+                    .fill(Color.gray.opacity(0.3))
+                    .frame(width: 20, height: 20)
+                }
+              }
+              
+              // Tokenizer text placeholder
+              Rectangle()
+                .fill(Color.gray.opacity(0.3))
+                .frame(height: 16)
+                .cornerRadius(4)
+            }
+            
+            Divider()
+            
+            // Top provider info placeholders
+              HStack {
+                Rectangle()
+                  .fill(Color.gray.opacity(0.3))
+                  .frame(width: 80, height: 16)
+                  .cornerRadius(4)
+                  .padding(.trailing, 16)
+                HStack(spacing: 4) {
+                  ForEach(0..<4) { _ in
+                    Rectangle()
+                      .fill(Color.gray.opacity(0.3))
+                      .frame(height: 18)
+                      .cornerRadius(4)
+                  }
+                }
+              }
+            // 2-column, 4-row skeleton using ForEach and HStacks
+            VStack(alignment: .leading, spacing: 6) {
+              ForEach(0..<4) { row in
+                HStack {
+                  Rectangle()
+                    .fill(Color.gray.opacity(0.3))
+                    .frame(width: row % 2 == 0 ? 120 : 100, height: 16)
+                    .cornerRadius(4)
+                  Spacer()
+                  Rectangle()
+                    .fill(Color.gray.opacity(0.3))
+                    .frame(width: 30, height: 16)
+                    .cornerRadius(4)
+                }
+              }
+            }
+          }
+          .padding(.horizontal, 12)
+        }
+        .padding(.vertical, 12)
+        .background(Color.gray.opacity(0.15))
+        .cornerRadius(12)
+        .redacted(reason: .placeholder)
       }
     }
   }
@@ -328,6 +425,13 @@ struct ModelPreview: View {
 
 #Preview {
   @Previewable @State var model: OpenRouterModel? = OpenRouterModel.exampleModel
-  ModelPreview($model)
-    .frame(width: 300, height: 600)
+  @Previewable @State var showDescription: Bool = false
+  @Previewable @State var perTokenCount: Double = 1_000_000
+  ModelPreview(
+    model: $model,
+    showDescription: $showDescription,
+    perTokenCount: $perTokenCount
+  )
+  .frame(width: 350, height: 600)
+  .padding()
 }
