@@ -7,47 +7,22 @@
 
 import SwiftUI
 
-struct Message: Identifiable {
-  let id: UUID
-  let text: String
-  let isUser: Bool
-  var isPinned: Bool
-  let timestamp: Date
-}
-
 struct ChatView: View {
-  @EnvironmentObject var ctx: AppContexts
-  var isOverlay: Bool
-  
   // Hover tracking
   @State private var hoveredMessageID: UUID?
   
-  var id: UUID? {
-    return session.id
-  }
-  
-  var session: ChatSessionContext {
-    let manager = ctx.chatContext
-    if isOverlay {
-      return manager.session(for: manager.overlayChatID)
-    } else {
-      return manager.session(for: manager.windowChatID)
-    }
-  }
-  
-  var messages: [Message] {
-    session.messages
-  }
+  @ObservedObject var session: ChatSession
   
   private func loadSession() {
-    session.messages = ChatAPI.fetchMessages(for: id)
+//    session.messages = ChatAPI.fetchMessages(for: session.id)
     print(session.messages)
   }
   
+  // TODO: fix issue where ContentView doesnt update when a message is added.
   var body: some View {
     ScrollView {
       LazyVStack(spacing: 0) {
-        ForEach(Array(messages.enumerated()), id: \.element.id) { index, msg in
+        ForEach(Array(session.messages.enumerated()), id: \.element.id) { index, msg in
           VStack(spacing: 0) {
             if index == 0 {
               IconButtonDupe(msg: msg, hoveredMessageID: $hoveredMessageID)
@@ -55,8 +30,8 @@ struct ChatView: View {
                 .onHover { hover in
                   hoveredMessageID = hover ? msg.id : nil
                 }
-            } else if index == messages.count - 1 {
-              let prevMsg = messages[index - 1]
+            } else if index == session.messages.count - 1 {
+              let prevMsg = session.messages[index - 1]
               HStack(spacing: 0) {
                 if msg.isUser {
                   MessageFooterDupe(msg: prevMsg, hoveredMessageID: $hoveredMessageID)
@@ -72,7 +47,7 @@ struct ChatView: View {
                 }
               MessageFooterDupe(msg: msg, hoveredMessageID: $hoveredMessageID)
             } else {
-              let prevMsg = messages[index - 1]
+              let prevMsg = session.messages[index - 1]
               HStack(spacing: 0) {
                 if msg.isUser {
                   MessageFooterDupe(msg: prevMsg, hoveredMessageID: $hoveredMessageID)
@@ -87,12 +62,18 @@ struct ChatView: View {
                   hoveredMessageID = hover ? msg.id : nil
                 }
             }
-//            IncomingMessage(chatSessionContext: session)
           }
+        }
+    
+        IncomingMessage(chatSessionContext: session)
+          .padding(.bottom, 28)
+        
+        if let error = session.error {
+          ChatErrorView(error)
+            .padding(.vertical, 8)
         }
       }
       .padding(20)
-      .id(session)
       .onAppear {
         loadSession()
       }
@@ -125,6 +106,7 @@ struct IconButtonDupe: View {
     .onHover { hover in
       hoveredMessageID = hover ? msg.id : nil
     }
+//    .id(msg.id)
   }
 }
 
@@ -144,10 +126,64 @@ struct MessageFooterDupe: View {
     .onHover { hover in
       hoveredMessageID = hover ? msg.id : nil
     }
+//    .id(msg.id)
   }
 }
 
 #Preview {
-  ChatView(isOverlay: true)
-    .environmentObject(AppContexts())
+  let settings = SettingsManager()
+  let chatManager = ChatManager(settings: settings)
+
+  ChatContainer(isOverlay: true)
+    .environmentObject(chatManager)
+    .environmentObject(settings)
+    .environmentObject(TutorialManager())
 }
+
+
+//struct ChatView_Previews: PreviewProvider {
+//  
+//  
+//  struct StreamingPreview: View {
+//    private var chatSessionContext: ChatSession
+//    
+//    init() {
+//      chatSessionContext = AppContexts.ctx.chatContext.session()
+//      AppContexts.ctx.chatContext.overlayChatID = chatSessionContext.id
+//    }
+//    
+//    let fullMessage = "Hello! This is a streaming message. It will appear character by character to simulate an LLM response."
+//    @State private var timer: Timer? = nil
+//    @State private var index: Int = 0
+//
+//    var body: some View {
+//      ChatContainer(isOverlay: true)
+//        .onAppear {
+//          chatSessionContext.startIncomingMessage()
+//          index = 0
+//          DispatchQueue.main.asyncAfter(deadline: .now() + 2) {
+//            timer?.invalidate()
+//            timer = Timer.scheduledTimer(withTimeInterval: 0.025, repeats: true) { t in
+//              if index < fullMessage.count {
+//                let nextChar = fullMessage[fullMessage.index(fullMessage.startIndex, offsetBy: index)]
+//                chatSessionContext.addIncomingChunk(String(nextChar))
+//                index += 1
+//              } else {
+//                t.invalidate()
+//                DispatchQueue.main.async {
+//                  chatSessionContext.finalizeIncomingMessage(id: UUID())
+//                }
+//              }
+//            }
+//          }
+//        }
+//        .onDisappear {
+//            timer?.invalidate()
+//        }
+//    }
+//  }
+//  
+//  static var previews: some View {
+//    StreamingPreview()
+//  }
+//}

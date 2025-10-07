@@ -8,29 +8,30 @@
 import SwiftUI
 
 struct PromptBox: View {
-  @EnvironmentObject var ctx: AppContexts
-  var isOverlay: Bool
+  
   @State private var isHovered: Bool = false
   @State private var isFirstResponder: Bool = false // might change later
   @State private var measuredTextHeight: CGFloat = 30
   
+  @ObservedObject var session: ChatSession
+  
+  var isInputEmpty: Bool {
+    session.prompt.isEmpty
+  }
+  
   var body: some View {
-    
-    let inputText = isOverlay ? $ctx.promptContext.overlayInputText : $ctx.promptContext.windowInputText
-    let isInputEmpty = inputText.wrappedValue.isEmpty
-    
     VStack(alignment: .trailing, spacing: 8) {
       ZStack(alignment: .topLeading) {
         if isInputEmpty {
-          Text("Type a prompt…")
+          Text("Type a prompt…"/* + session.id.uuidString*/)
             .font(.system(size: 12))
             .foregroundColor(.white.opacity(0.4))
         }
         AutoGrowingTextView(
-          text: inputText,
+          text: $session.prompt,
           isFirstResponder: $isFirstResponder,
           measuredHeight: $measuredTextHeight,
-          onEnterPressed: {ctx.promptContext.sendCurrentPrompt(forOverlay: isOverlay)},
+          onEnterPressed: {session.sendCurrentPrompt()},
           maxHeight: 120
         )
         .onTapGesture {
@@ -43,7 +44,7 @@ struct PromptBox: View {
       .padding(.horizontal, 16)
       
 //      ParentTextView(
-//        inputTextBinding: inputTextBinding,
+//        promptBinding: promptBinding,
 //        isFirstResponder: $isFirstResponder,
 //        onEnterPressed: {ctx.promptContext.sendCurrentPrompt(forOverlay: isOverlay)}
 //      )
@@ -74,7 +75,7 @@ struct PromptBox: View {
           help: "Use voice to write your prompt"
         )
         Button(action: {
-          // Send action
+          session.sendCurrentPrompt()
         }) {
           Image(systemName: "arrow.up")
             .foregroundColor(isInputEmpty ? .black : .black.opacity(0.8))
@@ -82,20 +83,21 @@ struct PromptBox: View {
             .frame(width: 36, height: 36)
             .background(
               Circle()
-                .fill(isInputEmpty ? Color.gray.opacity(0.75) : Color.white)
+                .fill((isInputEmpty || session.isIncoming) ? Color.gray.opacity(0.75) : Color.white)
             )
             .help("Submit prompt")
             .accessibilityLabel("Submit the prompt")
         }
         .padding(.leading, 8)
-        .disabled(isInputEmpty)
+        .disabled(isInputEmpty || session.isIncoming)
         .buttonStyle(PlainButtonStyle())
       }
       .padding(.bottom, 8)
       .padding(.horizontal, 12)
     }
     .background(Color.white.opacity(0.05))
-    .cornerRadius(24)
-    .padding()
+    .cornerRadius(16)
+    .overlay(RoundedRectangle(cornerRadius: 16).stroke(Color.white.opacity(0.05), lineWidth: 1).allowsHitTesting(false))
+    .padding(16)
   }
 }

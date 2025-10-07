@@ -18,24 +18,43 @@ class AppDelegate: NSObject, NSApplicationDelegate {
   }
 }
 
-class AppContexts: ObservableObject {
-  @Published var promptContext: PromptContext = PromptContext()
-  @Published var chatContext: ChatManager = ChatManager()
-}
+//@MainActor
+//class AppContexts: ObservableObject {
+//  static var ctx = AppContexts()
+//  
+////  @Published var promptContext: PromptContext = PromptContext()
+//  @Published var chatContext: ChatManager = ChatManager()
+//  @Published var settings: SettingsManager = SettingsManager()
+//  @Published var tutorial: TutorialManager = TutorialManager()
+//  
+//  private init() {}
+//}
 
 @main
 struct CortexApp: App {
   @NSApplicationDelegateAdaptor(AppDelegate.self) var appDelegate
-  private var appContexts = AppContexts()
+  
+  @StateObject private var chat: ChatManager
+  @StateObject private var settings: SettingsManager
+  @StateObject private var tutorial: TutorialManager = TutorialManager()
   
   init() {
-    OverlayWindowController.shared.contexts = appContexts
+    let settings = SettingsManager()
+    _settings = StateObject(wrappedValue: settings)
+    _chat = StateObject(wrappedValue: ChatManager(settings: settings))
+    
+    OverlayWindowController.shared.chat = _chat.wrappedValue
+    OverlayWindowController.shared.settings = settings
+    OverlayWindowController.shared.tutorial = _tutorial.wrappedValue
   }
   
   var body: some Scene {
     WindowGroup {
       ContentView()
-        .environmentObject(appContexts)
+        .environmentObject(chat)
+        .environmentObject(settings)
+        .environmentObject(tutorial)
+      
     }
   }
 }
